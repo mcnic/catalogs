@@ -1,8 +1,12 @@
+/vendor
 /node_modules
 /public/hot
 /public/storage
 /storage/*.key
-/vendor
+/public/css/
+/public/fonts/
+/public/js/
+/public/mix-manifest.json
 .env
 .env.backup
 .phpunit.result.cache
@@ -12,5 +16,3 @@ npm-debug.log
 yarn-error.log
 composer.lock
 yarn.lock
-
-

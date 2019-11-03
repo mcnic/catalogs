@@ -1,4 +1,5 @@
 const mix = require('laravel-mix');
+const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
 
 /*
  |--------------------------------------------------------------------------
@@ -11,5 +12,29 @@ const mix = require('laravel-mix');
  |
  */
 
+
 mix.js('resources/js/app.js', 'public/js')
-    .sass('resources/sass/app.scss', 'public/css');
+   .sass('resources/sass/app.scss', 'public/css')
+   .version()
+   //.sourceMaps()
+   .extract(["vue", "vuetify"]);
+
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+   .BundleAnalyzerPlugin;
+
+mix.webpackConfig({
+   resolve: {
+      extensions: ['.js', '.json', '.vue'],
+      alias: {
+         '~': path.join(__dirname, './resources/js'),
+         '$comp': path.join(__dirname, './resources/js/components')
+      }
+   },
+   plugins: [
+      new VuetifyLoaderPlugin(),
+      //new BundleAnalyzerPlugin()
+   ],
+   
+})
+
+mix.browserSync('127.0.0.1');
