@@ -1,13 +1,17 @@
 <template>
   <v-container>
-    HOME
+    <router-link :to="'/' + amtelUrl">{{ amtelTile }}</router-link>
   </v-container>
 </template>
 
 <script>
-    export default {
-        mounted() {
-            console.log('Component Home mounted.')
-        }
-    }
+export default {
+  data: () => ({
+    amtelUrl: process.env.MIX_AMTEL_URL,
+    amtelTile: process.env.MIX_AMTEL_NAME
+  }),
+  mounted() {
+    console.log("Component Home mounted.");
+  }
+};
 </script>

@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title')
+<!-- @section('title')
     {{ config('app.name') }} - home 
-@endsection
+@endsection -->
 
 @section('content')
 <div class="container">

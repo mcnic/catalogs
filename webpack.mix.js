@@ -16,7 +16,7 @@ const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
 mix.js('resources/js/app.js', 'public/js')
    .sass('resources/sass/app.scss', 'public/css')
    .version()
-   //.sourceMaps()
+   .sourceMaps()
    .extract(["vue", "vuetify"]);
 
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
@@ -34,7 +34,7 @@ mix.webpackConfig({
       new VuetifyLoaderPlugin(),
       //new BundleAnalyzerPlugin()
    ],
-   
+
 })
 
 mix.browserSync('127.0.0.1');

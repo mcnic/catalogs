@@ -34,7 +34,7 @@
     <v-navigation-drawer app v-model="drawer" temporary>
       <v-list-item @click="gotoMainSite">
         <v-list-item-icon>
-          <v-icon></v-icon>
+          <v-icon>mdi-taxi</v-icon>
         </v-list-item-icon>
         <v-list-item-content>
           <v-list-item-title>Вернуться в магазин</v-list-item-title>
@@ -67,18 +67,18 @@
 
     <!-- content -->
     <v-content>
-      <v-container fluid fill-height>
-        <v-layout align-center justify-center>
+      <v-container fluid>
+        <v-layout align-left>
           <router-view></router-view>
         </v-layout>
       </v-container>
     </v-content>
 
     <!-- footer -->
-    <v-footer padless app>
-      <v-col class="text-center" cols="12">
+    <v-footer absolute app>
+      <v-col class="text-center" cols="12" @click="gotoMainSite">
         {{ new Date().getFullYear() }} —
-        <strong>{{ appName }}</strong>
+        <strong>{{ mainSiteName }}</strong>
       </v-col>
     </v-footer>
   </v-app>
@@ -87,18 +87,20 @@
 <script>
 export default {
   data: () => ({
-    appName: "Каталог БУ запчастей",
+    appName: process.env.MIX_AMTEL_NAME,
+    mainSiteName: process.env.MIX_LICENSE,
     drawer: false,
     items: [
       { title: "Click Me" },
       { title: "Click Me" },
       { title: "Click Me" },
       { title: "Click Me 2" }
-    ]
+    ],
+    addUrl: process.env.MIX_ADD_URL
   }),
   methods: {
     gotoMainSite() {
-      location.replace("http://www.autoimport31.ru");
+      location.replace(process.env.MIX_MAIN_URL);
     }
   },
   computed: {
@@ -118,8 +120,12 @@ export default {
     links() {
       if (this.isUserLoggedIn) {
         return [
-          { title: "example", icon: "", url: "/e" }
-          //{ title: "Прайсы", icon: "", url: "/loaders" },
+          //{ title: "example", icon: "", url: "/e" },
+          {
+            title: process.env.MIX_AMTEL_NAME,
+            icon: "",
+            url: "/" + process.env.MIX_AMTEL_URL
+          }
           //{ title: "Кроссы", icon: "", url: "/crosses" },
           //{ title: "Производители", icon: "", url: "/brands" },
           //{ title: "Профили", icon: "", url: "/profiles" },
