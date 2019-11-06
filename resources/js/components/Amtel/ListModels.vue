@@ -28,14 +28,14 @@ export default {
     firm: "",
     bread: [
       {
-        text: "Главная",
+        text: "Каталоги",
         disabled: false,
         href: "/"
       },
       {
         text: process.env.MIX_AMTEL_NAME,
         disabled: false,
-        href: "/" + process.env.MIX_AMTEL_URL
+        href: "/" + process.env.MIX_AMTEL_PREFIX
       }
     ],
     items: [
@@ -43,25 +43,25 @@ export default {
         id: "B-MAX",
         image: "https://file.amtel.club/v2/file/models/1565/1.png",
         text: "б/у: 479",
-        url: "/bu/cars/ford/b-max"
+        url: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford/b-max"
       },
       {
         id: "146",
         image: "https://file.amtel.club/v2/file/models/3/1.png",
         text: "б/у: 479",
-        url: "/bu/cars/acura/alfa2"
+        url: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/acura/alfa2"
       },
       {
         id: "147",
         image: "https://file.amtel.club/v2/file/models/3/1.png",
         text: "б/у: 479",
-        url: "/bu/cars/acura/alfa3"
+        url: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/acura/alfa3"
       },
       {
         id: "148",
         image: "https://file.amtel.club/v2/file/models/3/1.png",
         text: "б/у: 479",
-        url: "/bu/cars/acura/alfa4"
+        url: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/acura/alfa4"
       }
     ]
   }),
@@ -73,7 +73,7 @@ export default {
     this.bread.push({
       text: this.title,
       disabled: true,
-      href: "/" + process.env.MIX_AMTEL_URL + "/cars/" + this.firm
+      href: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/" + this.firm
     });
 
     console.log("List models");

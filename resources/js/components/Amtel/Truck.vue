@@ -23,7 +23,7 @@ export default {
       {
         text: process.env.MIX_AMTEL_NAME,
         disabled: false,
-        href: "/" + process.env.MIX_AMTEL_URL
+        href: "/" + process.env.MIX_AMTEL_PREFIX
       }
     ]
   }),
@@ -32,7 +32,7 @@ export default {
     this.bread.push({
       text: this.firm,
       disabled: true,
-      href: "/" + process.env.MIX_AMTEL_URL + "/" + this.firm
+      href: "/" + process.env.MIX_AMTEL_PREFIX + "/" + this.firm
     });
     console.log("Component Amtel_Truck mounted.");
   }

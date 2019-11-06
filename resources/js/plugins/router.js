@@ -12,7 +12,7 @@ import NotFound from '../components/NotFound.vue'
 
 Vue.use(VueRouter)
 
-const catlogBu = '/' + process.env.MIX_AMTEL_URL
+const catlogBu = '/' + process.env.MIX_AMTEL_PREFIX
 
 let routes = [
     { path: '/', component: Home },

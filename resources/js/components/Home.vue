@@ -7,7 +7,7 @@
 <script>
 export default {
   data: () => ({
-    amtelUrl: process.env.MIX_AMTEL_URL,
+    amtelUrl: process.env.MIX_AMTEL_PREFIX,
     amtelTile: process.env.MIX_AMTEL_NAME
   }),
   mounted() {

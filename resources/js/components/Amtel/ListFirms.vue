@@ -39,26 +39,29 @@
 export default {
   data: () => ({
     firmTab: 0,
-    mainUrl: process.env.MIX_AMTEL_URL,
+    mainUrl: process.env.MIX_AMTEL_PREFIX,
     bread: [
       {
-        text: "Главная",
+        text: "Каталоги",
         disabled: false,
         href: "/"
       },
       {
         text: process.env.MIX_AMTEL_NAME,
         disabled: true,
-        href: "/" + process.env.MIX_AMTEL_URL
+        href: "/" + process.env.MIX_AMTEL_PREFIX
       }
     ],
     lightCars: [
-      { title: "Acura", url: "/bu/cars/acura" },
-      { title: "Ford", url: "/bu/cars/ford" }
+      {
+        title: "Acura",
+        url: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/acura"
+      },
+      { title: "Ford", url: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford" }
     ],
     trucks: [
-      { title: "BAW", url: "/bu/trucks/baw" },
-      { title: "BPW", url: "/bu/trucks/bpw" }
+      { title: "BAW", url: "/" + process.env.MIX_AMTEL_PREFIX + "/trucks/baw" },
+      { title: "BPW", url: "/" + process.env.MIX_AMTEL_PREFIX + "/trucks/bpw" }
     ]
   }),
   mounted() {

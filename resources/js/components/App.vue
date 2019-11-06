@@ -3,7 +3,7 @@
     <!-- top navigation bar -->
     <v-app-bar app color="indigo" dark>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>{{ appName }}</v-toolbar-title>
+      <v-toolbar-title>Каталоги</v-toolbar-title>
 
       <v-spacer></v-spacer>
 
@@ -100,7 +100,7 @@ export default {
   }),
   methods: {
     gotoMainSite() {
-      location.replace(process.env.MIX_MAIN_URL);
+      //location.replace(process.env.MIX_MAIN_URL);
     }
   },
   computed: {
@@ -124,7 +124,7 @@ export default {
           {
             title: process.env.MIX_AMTEL_NAME,
             icon: "",
-            url: "/" + process.env.MIX_AMTEL_URL
+            url: "/" + process.env.MIX_AMTEL_PREFIX
           }
           //{ title: "Кроссы", icon: "", url: "/crosses" },
           //{ title: "Производители", icon: "", url: "/brands" },

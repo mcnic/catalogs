@@ -7,7 +7,7 @@
 import vuetify from '~/plugins/vuetify'
 import router from '~/plugins/router'
 //require('./bootstrap');
-import 'material-design-icons-iconfont/dist/material-design-icons.css';
+//import 'material-design-icons-iconfont/dist/material-design-icons.css';
 
 window.Vue = require('vue');
 

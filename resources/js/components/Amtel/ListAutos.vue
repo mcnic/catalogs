@@ -28,19 +28,19 @@ export default {
     model: "",
     bread: [
       {
-        text: "Главная",
+        text: "Каталоги",
         disabled: false,
         href: "/"
       },
       {
         text: process.env.MIX_AMTEL_NAME,
         disabled: false,
-        href: "/" + process.env.MIX_AMTEL_URL
+        href: "/" + process.env.MIX_AMTEL_PREFIX
       },
       {
         text: "Ford",
         disabled: false,
-        href: "/" + process.env.MIX_AMTEL_URL + "/cars/ford"
+        href: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford"
       }
     ],
     items: [
@@ -48,25 +48,25 @@ export default {
         id: "B-MAX 1",
         image: "https://file.amtel.club/v2/file/models/1565/1.png",
         text: "б/у: 479",
-        url: "/bu/cars/ford/b-max/b-max1"
+        url: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford/b-max/b-max1"
       },
       {
         id: "B-MAX 2",
         image: "https://file.amtel.club/v2/file/models/1565/1.png",
         text: "б/у: 479",
-        url: "/bu/cars/ford/b-max/b-max2"
+        url: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford/b-max/b-max2"
       },
       {
         id: "B-MAX 3",
         image: "https://file.amtel.club/v2/file/models/1565/1.png",
         text: "б/у: 479",
-        url: "/bu/cars/ford/b-max/b-max3"
+        url: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford/b-max/b-max3"
       },
       {
         id: "B-MAX 4",
         image: "https://file.amtel.club/v2/file/models/1565/1.png",
         text: "б/у: 479",
-        url: "/bu/cars/ford/b-max/b-max4"
+        url: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford/b-max/b-max4"
       }
     ]
   }),
@@ -78,7 +78,7 @@ export default {
     this.bread.push({
       text: this.title,
       disabled: true,
-      href: "/" + process.env.MIX_AMTEL_URL + "/cars/ford/" + this.model
+      href: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford/" + this.model
     });
 
     console.log("List autos");
