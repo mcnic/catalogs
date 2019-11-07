@@ -31,7 +31,7 @@ mix.webpackConfig({
       }
    },
    plugins: [
-      new VuetifyLoaderPlugin(),
+      //new VuetifyLoaderPlugin(),
       //new BundleAnalyzerPlugin()
    ],
 

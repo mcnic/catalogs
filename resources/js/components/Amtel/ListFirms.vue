@@ -12,7 +12,7 @@
       <v-tab>Легковые автомобили</v-tab>
       <v-tab>Грузовые автомобили</v-tab>
 
-      <v-tab-item>
+      <v-tab-item light show-arrows>
         <v-card flat>
           <v-card-text>
             <div v-for="item in lightCars" :key="item.title">
@@ -51,21 +51,21 @@ export default {
         disabled: true,
         href: "/" + process.env.MIX_AMTEL_PREFIX
       }
-    ],
-    lightCars: [
-      {
-        title: "Acura",
-        url: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/acura"
-      },
-      { title: "Ford", url: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford" }
-    ],
-    trucks: [
-      { title: "BAW", url: "/" + process.env.MIX_AMTEL_PREFIX + "/trucks/baw" },
-      { title: "BPW", url: "/" + process.env.MIX_AMTEL_PREFIX + "/trucks/bpw" }
     ]
   }),
+  computed: {
+    lightCars($) {
+      return this.$store.getters.lightCars;
+    },
+    trucks($) {
+      return this.$store.getters.trucks;
+    }
+  },
+  methods: {},
   mounted() {
-    console.log("List firms");
+    this.$store.getters.debug ? console.log("List firms") : "";
+    //console.log(this.$store.getters.firms);
+    this.$store.dispatch("renewFirms");
   }
 };
 </script>

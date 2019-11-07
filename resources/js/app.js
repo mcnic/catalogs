@@ -5,7 +5,8 @@
  */
 //import 'babel-polyfill'
 import vuetify from '~/plugins/vuetify'
-import router from '~/plugins/router'
+import router from '~/router/index'
+import store from '~/store/index'
 //require('./bootstrap');
 //import 'material-design-icons-iconfont/dist/material-design-icons.css';
 
@@ -34,4 +35,5 @@ const app = new Vue({
     el: '#app',
     vuetify,
     router,
+    store
 });
