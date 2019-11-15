@@ -107,16 +107,6 @@ export default {
     error() {
       //return this.$store.getters.error
     },
-    linksTop() {
-      return [
-        {
-          title: "Вернуть на сайт",
-          icon: "",
-          url: "http://www.autoimport31.ru"
-        },
-        { title: " Главная страница", icon: "mdi-home-city", url: "/" }
-      ];
-    },
     links() {
       if (this.isUserLoggedIn) {
         return [
@@ -148,3 +138,9 @@ export default {
   }
 };
 </script>
+
+<style module>
+.red {
+  color: red;
+}
+</style>

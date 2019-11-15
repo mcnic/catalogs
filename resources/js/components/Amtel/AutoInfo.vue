@@ -24,10 +24,15 @@
 <script>
 export default {
   data: () => ({
-    props: ["id, url, image, text"]
+    props: {
+      id: String,
+      url: String,
+      image: String,
+      text: String
+    }
   }),
   mounted() {
-    console.log("Component Amtel_Auto mounted.");
+    //this.$store.getters.debug ? console.log("autoInfo") : "";
   }
 };
 </script>

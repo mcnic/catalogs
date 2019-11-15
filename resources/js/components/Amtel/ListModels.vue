@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-breadcrumbs :items="bread" divider=">"></v-breadcrumbs>
+    <v-breadcrumbs :items="breadCrumbs" divider=">"></v-breadcrumbs>
 
     <v-list-item>
       <v-list-item-content>
@@ -20,24 +20,13 @@
 </template>
 
 <script>
-import AutoInfo from "./AutoInfo";
-
 export default {
+  components: {
+    AutoInfo: () => import("./AutoInfo")
+  },
   data: () => ({
-    title: "Ford",
+    title: "",
     firm: "",
-    bread: [
-      {
-        text: "Каталоги",
-        disabled: false,
-        href: "/"
-      },
-      {
-        text: process.env.MIX_AMTEL_NAME,
-        disabled: false,
-        href: "/" + process.env.MIX_AMTEL_PREFIX
-      }
-    ],
     items: [
       {
         id: "B-MAX",
@@ -65,18 +54,31 @@ export default {
       }
     ]
   }),
-  components: {
-    AutoInfo
+  computed: {
+    breadCrumbs(state) {
+      return this.$store.getters.breadCrumbs;
+    }
   },
   mounted() {
-    this.firm = this.$route.params.firm;
-    this.bread.push({
+    this.$store.getters.debug ? console.log("List models") : "";
+
+    this.firm = this.$route.params.firm; //todo
+    this.title = this.$store.getters.titleFirm(this.firm); //todo
+
+    const routeArray = this.$router.options.routes;
+    //const pathArray = this.$route.path.split("/", 3);
+    const pathArray = this.$route.path.split("/");
+    const addBread = {
       text: this.title,
       disabled: true,
-      href: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/" + this.firm
-    });
+      href: ""
+    };
 
-    console.log("List models");
+    this.$store.dispatch("renewBreadCrumbs", {
+      routeArray,
+      pathArray,
+      addBread
+    });
   }
 };
 </script>

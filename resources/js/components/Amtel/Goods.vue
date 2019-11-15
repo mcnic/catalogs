@@ -33,34 +33,13 @@
 </template>
 
 <script>
-import AutoInfo from "./AutoInfo";
-
 export default {
+  components: {
+    AutoInfo: () => import("./AutoInfo")
+  },
   data: () => ({
     title: "B-MAX 1",
     auto: "",
-    bread: [
-      {
-        text: "Каталоги",
-        disabled: false,
-        href: "/"
-      },
-      {
-        text: process.env.MIX_AMTEL_NAME,
-        disabled: false,
-        href: "/" + process.env.MIX_AMTEL_PREFIX
-      },
-      {
-        text: "Ford",
-        disabled: false,
-        href: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford"
-      },
-      {
-        text: "B-MAX",
-        disabled: false,
-        href: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford/b-max"
-      }
-    ],
     search: "",
     items: [
       {
@@ -109,18 +88,41 @@ export default {
       }
     ]
   }),
-  components: {
-    AutoInfo
+  computed: {
+    bread(state) {
+      return [
+        {
+          text: "Каталоги",
+          disabled: false,
+          href: "/"
+        },
+        {
+          text: process.env.MIX_AMTEL_NAME,
+          disabled: false,
+          href: this.$route.path.split("/", 2).join("/")
+        },
+        {
+          text: "Ford",
+          disabled: false,
+          href: this.$route.path.split("/", 4).join("/")
+        },
+        {
+          text: "B-MAX",
+          disabled: false,
+          href: this.$route.path.split("/", 5).join("/")
+        }
+      ];
+    }
   },
   mounted() {
+    this.$store.getters.debug ? console.log("Goods") : "";
+
     this.auto = this.$route.params.model;
     this.bread.push({
       text: this.title,
       disabled: true,
       href: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford/b-max" + this.auto
     });
-
-    console.log("Goods");
   }
 };
 </script>

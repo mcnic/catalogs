@@ -10,7 +10,8 @@
     <title>@yield('title')</title>
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <!-- link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet" -->
-    <!-- link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet" -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
@@ -19,8 +20,10 @@
     <div id="app">
         <app> </app>
     </div>
-    <script src="{{ mix('js/manifest.js') }}" type="text/javascript"></script>
+    @stack('beforeScripts')
+    <!-- script src="js/manifest.js" type="text/javascript"></script -->
     <script src="{{ mix('js/app.js') }}" type="text/javascript"></script>      
-    <script src="{{ mix('js/vendor.js') }}" type="text/javascript"></script>      
+    <!-- script src="{ { mix('js/vendor.js') } }" type="text/javascript"></script -->
+    @stack('afterScripts')     
 </body>
 </html>

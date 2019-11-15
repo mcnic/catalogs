@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-breadcrumbs :items="bread" divider=">"></v-breadcrumbs>
+    <v-breadcrumbs :items="breadCrumbs" divider=">"></v-breadcrumbs>
 
     <v-list-item>
       <v-list-item-content>
@@ -36,6 +36,8 @@
 </template>
 
 <script>
+//import { VTabs } from "vuetify/lib";
+
 export default {
   data: () => ({
     firmTab: 0,
@@ -54,6 +56,9 @@ export default {
     ]
   }),
   computed: {
+    breadCrumbs(state) {
+      return this.$store.getters.breadCrumbs;
+    },
     lightCars($) {
       return this.$store.getters.lightCars;
     },
@@ -64,8 +69,19 @@ export default {
   methods: {},
   mounted() {
     this.$store.getters.debug ? console.log("List firms") : "";
-    //console.log(this.$store.getters.firms);
+
     this.$store.dispatch("renewFirms");
+
+    const routeArray = this.$router.options.routes;
+    //const pathArray = this.$route.path.split("/", 2);
+    const pathArray = this.$route.path.split("/");
+    const addBread = null;
+
+    this.$store.dispatch("renewBreadCrumbs", {
+      routeArray,
+      pathArray,
+      addBread
+    });
   }
 };
 </script>

@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-breadcrumbs :items="bread" divider=">"></v-breadcrumbs>
+    <v-breadcrumbs :items="breadCrumbs" divider=">"></v-breadcrumbs>
 
     <v-list-item>
       <v-list-item-content>
@@ -20,9 +20,10 @@
 </template>
 
 <script>
-import AutoInfo from "./AutoInfo";
-
 export default {
+  components: {
+    AutoInfo: () => import("./AutoInfo")
+  },
   data: () => ({
     title: "B-MAX",
     model: "",
@@ -70,18 +71,29 @@ export default {
       }
     ]
   }),
-  components: {
-    AutoInfo
+  computed: {
+    breadCrumbs(state) {
+      return this.$store.getters.breadCrumbs;
+    }
   },
   mounted() {
-    this.model = this.$route.params.model;
-    this.bread.push({
+    this.$store.getters.debug ? console.log("List autos") : "";
+
+    this.model = this.$route.params.model; //todo
+
+    const routeArray = this.$router.options.routes;
+    const pathArray = this.$route.path.split("/", 4);
+    const addBread = {
       text: this.title,
       disabled: true,
       href: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford/" + this.model
-    });
+    };
 
-    console.log("List autos");
+    this.$store.dispatch("renewBreadCrumbs", {
+      routeArray,
+      pathArray,
+      addBread
+    });
   }
 };
 </script>

@@ -11,7 +11,7 @@ export default {
     amtelTile: process.env.MIX_AMTEL_NAME
   }),
   mounted() {
-    console.log("Component Home mounted.");
+    console.log("Component Amtel Home mounted.");
   }
 };
 </script>
