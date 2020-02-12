@@ -41,23 +41,7 @@ mix.webpackConfig({
       //new BundleAnalyzerPlugin()
    ],
    module: {
-      rules: [
-         /*{
-            test: /\.vue$/,
-            loader: 'vue-loader',
-            include: path.join(__dirname, './resources/js')
-         },*/
-         {
-            /*test: /\.css$/,
-            loaders: [
-               "style-loader",
-               {
-                  loader: "css-loader",
-                  options: { modules: true, importLoaders: 1 }
-               }
-            ]*/
-         }
-      ]
+      rules: []
    },
    optimization: {
       minimize: true,
@@ -86,47 +70,5 @@ mix.webpackConfig({
       }
    }
 })
-
-/*mix.webpackConfig({
-   module: {
-      rules: [
-         {
-            test: /\.vue$/,
-            loader: 'vue-loader',
-
-            // For some reason I don't know why removing exclude does not compile properly
-            exclude: /bower_components/,
-
-            options: {
-               loaders: {
-                  js: {
-                     loader: 'babel-loader',
-                     options: Config.babel()
-                  },
-
-                  //  Here's where you put your extra configs
-                  scss: [
-                     { loader: 'vue-style-loader' },
-                     { loader: 'css-loader' },
-                     {
-                        loader: 'sass-loader',
-                        options: {
-                           includePaths: ['node_modules']
-                        }
-                     }
-                  ]
-               }
-            }
-         }
-      ]
-   },
-   resolve: {
-      extensions: ['.js', '.json', '.vue'],
-      alias: {
-         '~': path.join(__dirname, './resources/js'),
-         '$comp': path.join(__dirname, './resources/js/components')
-      }
-   }
-});*/
 
 mix.browserSync('127.0.0.1');

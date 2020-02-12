@@ -4,21 +4,19 @@ Vue.use(VueRouter);
 
 import routerAmtel from './routerAmtel'
 
-const Home = () => import('$comp/Home.vue')
-const NotFound = () => import('$comp/NotFound.vue')
-
 let routes = [
     {
         path: "/",
         name: "Главная",
-        component: Home,
+        component: () => import('$comp/Home.vue'),
     },
     //{ path: '/e', component: Example },
 ];
 
 let routesEnds = [
     {
-        path: '*', component: NotFound
+        path: '*',
+        component: () => import('$comp/NotFound.vue')
     }
 ];
 
