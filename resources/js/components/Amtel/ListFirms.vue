@@ -41,47 +41,39 @@
 export default {
   data: () => ({
     firmTab: 0,
-    mainUrl: process.env.MIX_AMTEL_PREFIX,
-    bread: [
-      {
-        text: "Каталоги",
-        disabled: false,
-        href: "/"
-      },
-      {
-        text: process.env.MIX_AMTEL_NAME,
-        disabled: true,
-        href: "/" + process.env.MIX_AMTEL_PREFIX
-      }
-    ]
+    mainUrl: process.env.MIX_AMTEL_PREFIX
   }),
   computed: {
-    breadCrumbs(state) {
+    /*breadCrumbs(state) {
       return this.$store.getters.breadCrumbs;
-    },
+    },*/
     lightCars($) {
       return this.$store.getters.lightCars;
     },
     trucks($) {
       return this.$store.getters.trucks;
+    },
+    breadCrumbs($) {
+      const pathArray = this.$route.path.split("/");
+
+      return [
+        {
+          text: "Главная",
+          disabled: false,
+          href: "/"
+        },
+        {
+          text: process.env.MIX_AMTEL_NAME,
+          disabled: false,
+          href: ""
+        }
+      ];
     }
   },
   methods: {},
   mounted() {
     this.$store.getters.debug ? console.log("List firms") : "";
-
     this.$store.dispatch("renewFirms");
-
-    const routeArray = this.$router.options.routes;
-    //const pathArray = this.$route.path.split("/", 2);
-    const pathArray = this.$route.path.split("/");
-    const addBread = null;
-
-    this.$store.dispatch("renewBreadCrumbs", {
-      routeArray,
-      pathArray,
-      addBread
-    });
   }
 };
 </script>

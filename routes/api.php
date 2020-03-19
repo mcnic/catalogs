@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AtmtelController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +16,13 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+//Route::middleware(['auth:api'])->group(function () {
+Route::group(['middleware' => 'myapi'], function () {
+    /*Route::get('/user', function (Request $request) {
+        return $request->user();
+    });*/
+
+    Route::get('/firm', 'AtmtelController@getFirm');
+    Route::get('/cars/{firm}', 'AtmtelController@getModelsCars');
+    Route::get('/truck/{firm}', 'AtmtelController@getModelsTruck');
 });

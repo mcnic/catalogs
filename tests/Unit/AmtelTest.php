@@ -4,11 +4,13 @@ namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Log;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Cache;
 use App\Amtel\Amtel;
+use App\Amtel\Firms;
 
-class ExampleTest extends TestCase
+class AmtelTest extends TestCase
 {
 
 
@@ -32,16 +34,19 @@ class ExampleTest extends TestCase
         $this->assertTrue($value == 'test_data');
     }
 
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
-    public function testGetAmtelRequest()
+    public function testGetFirm()
+    {
+        $res = Amtel::getFirm('Acura');
+        Log::info('firm "acura" =' . $res);
+
+        $this->assertTrue(true);
+    }
+
+    public function testAmtelRequest()
     {
 
         $params = [
-            'vehicle_model_types' => [1],
+            'vehicle_model_types' => [2],
             'avail_only' => true
         ];
 
@@ -50,8 +55,34 @@ class ExampleTest extends TestCase
         //echo "\n" . $jwt . "\n";
 
         $this->assertTrue(true);
+    }
+
+    public function testAmtelGetFirms()
+    {
+
+        $params = [
+            'vehicle_model_types' => [2],
+            'avail_only' => true
+        ];
 
         $res = Amtel::get('/v2/company', $params);
-        //print_r($res);
+        Log::info('/v2/company=' . $res);
+
+        $this->assertTrue(true);
+    }
+
+    public function testAmtelGetModel()
+    {
+
+        $params = [
+            'company_id' => 115979555, // audi
+            'model_types' => [0],
+            'avail_only' => true
+        ];
+
+        $res = Amtel::get('/company/models', $params);
+        Log::info('/company/models=' . $res);
+
+        $this->assertTrue(true);
     }
 }

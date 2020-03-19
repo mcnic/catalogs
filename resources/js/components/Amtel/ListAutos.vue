@@ -27,23 +27,6 @@ export default {
   data: () => ({
     title: "B-MAX",
     model: "",
-    bread: [
-      {
-        text: "Каталоги",
-        disabled: false,
-        href: "/"
-      },
-      {
-        text: process.env.MIX_AMTEL_NAME,
-        disabled: false,
-        href: "/" + process.env.MIX_AMTEL_PREFIX
-      },
-      {
-        text: "Ford",
-        disabled: false,
-        href: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford"
-      }
-    ],
     items: [
       {
         id: "B-MAX 1",
@@ -72,14 +55,51 @@ export default {
     ]
   }),
   computed: {
-    breadCrumbs(state) {
-      return this.$store.getters.breadCrumbs;
+    breadCrumbs($) {
+      const pathArray = this.$route.path.split("/");
+      console.log("comp breadCrumbs");
+      console.log(pathArray);
+
+      return [
+        {
+          text: "Главная",
+          disabled: false,
+          href: "/"
+        },
+        {
+          text: process.env.MIX_AMTEL_NAME,
+          disabled: false,
+          href: "/" + pathArray[1]
+        },
+        {
+          text: this.$store.getters.firm,
+          disabled: false,
+          href:
+            "/" +
+            pathArray[1] +
+            "/" +
+            this.$store.getters.typeAutos +
+            "/" +
+            pathArray[3]
+        },
+        {
+          text: this.$store.getters.model,
+          disabled: false,
+          href: ""
+        }
+      ];
     }
   },
   mounted() {
     this.$store.getters.debug ? console.log("List autos") : "";
+    console.log(pathArray);
 
-    this.model = this.$route.params.model; //todo
+    const pathArray = this.$route.path.split("/");
+    this.$store.dispatch("setTypeAutos", pathArray[2]);
+    this.$store.dispatch("setFirm", pathArray[3]);
+    this.$store.dispatch("setModel", pathArray[4]);
+
+    /*this.model = this.$route.params.model; //todo
 
     const routeArray = this.$router.options.routes;
     const pathArray = this.$route.path.split("/", 4);
@@ -93,7 +113,7 @@ export default {
       routeArray,
       pathArray,
       addBread
-    });
+    });*/
   }
 };
 </script>

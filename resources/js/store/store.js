@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import storeAmtel from '@/store/modules/storeAmtel'
+import storeAmtel from '@@/store/modules/storeAmtel'
 
 Vue.use(Vuex)
 

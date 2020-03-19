@@ -8,6 +8,12 @@ import Vue from 'vue'
 import Vuetify from 'vuetify/lib'
 Vue.use(Vuetify)
 
+import axios from 'axios'
+import VueAxios from 'vue-axios'
+Vue.use(VueAxios, axios)
+//Vue.axios.defaults.baseURL = `${process.env.MIX_APP_URL}/api/v1`
+Vue.axios.defaults.baseURL = `/api`
+
 const vuetify = new Vuetify({
     icons: {
         //iconfont: 'mdi', // 'mdi' || 'mdiSvg' || 'md' || 'fa' || 'fa4'

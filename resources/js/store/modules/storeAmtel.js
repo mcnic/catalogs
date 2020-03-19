@@ -24,18 +24,17 @@ let breadCrumbsArray = [
 
 const state = {
   debug: debug,
-  count: 10,
-  firms: {}, // list firms
-  firmName: '', // firm name
-  breadCrumbs: []
+  breadCrumbs: [],
+  firms: {}, // list firms for ListFirm component
+  models: [], //for ListModels component
+  typeAutos: '', // cars/trucks
+  firm: '',
+  model: ''
 }
 
 const getters = {
   debug: state => {
     return state.debug
-  },
-  count: state => {
-    return state.count
   },
   lightCars: (state, getters) => {
     return state.firms.lightCars
@@ -45,15 +44,25 @@ const getters = {
     return state.firms.trucks
     //return getters.firms.trucks
   },
-  titleFirm: state => firm => {
-    return firm
-  },
+  //titleFirm: state => firm => {
+  //   return firm
+  //},
   breadCrumbs: state => {
     return state.breadCrumbs
   },
-  firmName: state => {
-    return state.firmName
+  typeAutos: state => {
+    return state.typeAutos
+  },
+  firm: state => {
+    return state.firm
+  },
+  models: state => {
+    return state.models
+  },
+  model: state => {
+    return state.model
   }
+
 }
 
 const mutations = {
@@ -61,51 +70,77 @@ const mutations = {
     state.count++
   },
   fillFirms(state, firms) {
-    state.debug ? console.log('fillFirms') : ''
+    state.debug ? console.log('mut fillFirms') : ''
     state.firms = firms
   },
-  setFirmName(state, name) {
-    state.firmName = name
+  fillModels(state, models) {
+    state.debug ? console.log('mut fillModels') : ''
+    state.models = models
   },
   setBreadCrumbs(state, arr) {
     state.breadCrumbs = arr;
+  },
+  setTypeAutos(state, typeAutos) {
+    state.typeAutos = typeAutos;
+  },
+  setFirm(state, firm) {
+    state.firm = firm;
+  },
+  setModel(state, model) {
+    state.model = model;
   }
 }
 
 const actions = {
   renewFirms(context) {
-    context.state.debug ? console.log('renewFirms') : ''
+    context.state.debug ? console.log('act renewFirms') : ''
 
     Api.getFirms((firms) => {
       context.commit('fillFirms', firms)
     })
   },
-  getFirmByName(context, firm) {
-    context.state.debug ? console.log('getFirmByName') : ''
-    //console.log(firm)
+  renewModels(context) {
+    context.state.debug ? console.log('act renewModels') : ''
 
-    Api.getFirm(firm => {
+    Api.getModels(context.state.firm, context.state.typeAutos, (models) => {
+      context.commit('fillModels', models)
+    })
+  },
+  getFirmByName(context, firm) {
+    if (context.state.debug) {
+      console.log('act getFirmByName');
+      console.log(firm);
+    }
+
+    context.commit('setFirmName', firm);
+    /*Api.getFirm(firm => {
       //console.log(firm)
       if (firm)
         context.commit('setFirmName', firm)
-    }, firm)
+    }, firm)*/
   },
   renewBreadCrumbs({ dispatch, commit, state, getters }, { routeArray, pathArray, addBread }) {
-    state.debug ? console.log('renewBreadCrumbs') : '';
-
-    //console.log(routeArray)
-    console.log(pathArray)
-
     if (pathArray.length >= 4) {
       //let name = 
-      dispatch('getFirmByName', pathArray[3]);
+      //dispatch('getFirmByName', pathArray[3]);
+      commit('setTypeAutos', pathArray[2]);
+      commit('setFirm', pathArray[3]);
+
+      breadCrumbsArray[3].name = pathArray[3]
 
       //breadCrumbsArray[1].name = state.firmName;
-      //breadCrumbsArray[3].text = context.getters.firmName;
+      //breadCrumbsArray[3].text = pathArray[3];
       //console.log(context.getters.firmName)
     }
-    console.log(state)
-    console.log(state.firmName)
+
+    if (state.debug) {
+      console.log('renewBreadCrumbs');
+      //console.log(routeArray);
+      //console.log(pathArray);
+      //console.log(addBread);
+      //console.log(state);
+      //console.log(state.firmName);
+    }
 
     let arr = [];
     let to = "";
@@ -123,31 +158,29 @@ const actions = {
         to = "/"
       }
 
-      /*switch (i) {
-        case '3': // firm name
-          breadCrumbsArray[3].text = state.firmName
-          break
-        case '5':  // if (x === 'value2')
-          break
-
-        default:
-          break
-      }*/
-
       if (breadCrumbsArray[i]) {
         arr.push({
           text: breadCrumbsArray[i].name,
           disabled: false,
           href: to
         });
-        //console.log(t)
       }
     });
 
-    //addBread ? arr.push(addBread) : '';
-    console.log(breadCrumbsArray);
+    if (this.debug) {
+      console.log(breadCrumbsArray);
+    }
 
     commit('setBreadCrumbs', arr);
+  },
+  setTypeAutos(context, typeAutos) {
+    context.commit('setTypeAutos', typeAutos);
+  },
+  setFirm(context, firm) {
+    context.commit('setFirm', firm);
+  },
+  setModel(context, model) {
+    context.commit('setModel', model);
   }
 
 }

@@ -29,7 +29,7 @@ mix.webpackConfig({
       extensions: ['.js', '.json', '.vue'],
       alias: {
          //'vue$': isDev ? 'vue/dist/vue.runtime.js' : 'vue/dist/vue.runtime.min.js',
-         '@': path.join(__dirname, './resources/js'),
+         '@@': path.join(__dirname, './resources/js'),
          '$comp': path.join(__dirname, './resources/js/components')
       }
    },
@@ -44,7 +44,8 @@ mix.webpackConfig({
       rules: []
    },
    optimization: {
-      minimize: true,
+      //minimize: true,
+      minimize: false,
       //runtimeChunk: { name: 'common' },
       splitChunks: {
          chunks: 'async',
