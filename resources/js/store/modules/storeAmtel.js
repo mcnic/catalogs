@@ -24,12 +24,18 @@ let breadCrumbsArray = [
 
 const state = {
   debug: debug,
-  breadCrumbs: [],
-  firms: {}, // list firms for ListFirm component
-  models: [], //for ListModels component
   typeAutos: '', // cars/trucks
   firm: '',
-  model: ''
+  firms: {}, // list firms for ListFirm component
+  models: {
+    models: [],
+    avail: {
+      result: false
+    }
+  }, //for ListModels component
+  model: '',
+  modelGroups: [],
+  modelGroup: '',
 }
 
 const getters = {
@@ -56,6 +62,12 @@ const getters = {
   firm: state => {
     return state.firm
   },
+  modelGroups: state => {
+    return state.modelGroups
+  },
+  modelGroup: state => {
+    return state.modelGroup
+  },
   models: state => {
     return state.models
   },
@@ -73,6 +85,10 @@ const mutations = {
     state.debug ? console.log('mut fillFirms') : ''
     state.firms = firms
   },
+  fillModelGroups(state, modelGroups) {
+    state.debug ? console.log('mut fillModelGroups') : ''
+    state.modelGroups = modelGroups
+  },
   fillModels(state, models) {
     state.debug ? console.log('mut fillModels') : ''
     state.models = models
@@ -85,6 +101,9 @@ const mutations = {
   },
   setFirm(state, firm) {
     state.firm = firm;
+  },
+  setModelGroup(state, modelGroup) {
+    state.modelGroup = modelGroup;
   },
   setModel(state, model) {
     state.model = model;
@@ -99,10 +118,17 @@ const actions = {
       context.commit('fillFirms', firms)
     })
   },
+  renewModelGroups(context) {
+    context.state.debug ? console.log('act renewModelGroups') : ''
+
+    Api.getModelGroups(context.state.firm, context.state.typeAutos, (modelGroups) => {
+      context.commit('fillModelGroups', modelGroups)
+    })
+  },
   renewModels(context) {
     context.state.debug ? console.log('act renewModels') : ''
 
-    Api.getModels(context.state.firm, context.state.typeAutos, (models) => {
+    Api.getModels(context.state.typeAutos, context.state.firm, context.state.modelGroup, (models) => {
       context.commit('fillModels', models)
     })
   },
@@ -119,65 +145,14 @@ const actions = {
         context.commit('setFirmName', firm)
     }, firm)*/
   },
-  renewBreadCrumbs({ dispatch, commit, state, getters }, { routeArray, pathArray, addBread }) {
-    if (pathArray.length >= 4) {
-      //let name = 
-      //dispatch('getFirmByName', pathArray[3]);
-      commit('setTypeAutos', pathArray[2]);
-      commit('setFirm', pathArray[3]);
-
-      breadCrumbsArray[3].name = pathArray[3]
-
-      //breadCrumbsArray[1].name = state.firmName;
-      //breadCrumbsArray[3].text = pathArray[3];
-      //console.log(context.getters.firmName)
-    }
-
-    if (state.debug) {
-      console.log('renewBreadCrumbs');
-      //console.log(routeArray);
-      //console.log(pathArray);
-      //console.log(addBread);
-      //console.log(state);
-      //console.log(state.firmName);
-    }
-
-    let arr = [];
-    let to = "";
-
-    pathArray.forEach(function (item, i) {
-      //console.log(i)
-
-      // current path elements
-      if (item) {
-        if (to == "/")
-          to = "/" + item;
-        else
-          to = to + "/" + item;
-      } else {
-        to = "/"
-      }
-
-      if (breadCrumbsArray[i]) {
-        arr.push({
-          text: breadCrumbsArray[i].name,
-          disabled: false,
-          href: to
-        });
-      }
-    });
-
-    if (this.debug) {
-      console.log(breadCrumbsArray);
-    }
-
-    commit('setBreadCrumbs', arr);
-  },
   setTypeAutos(context, typeAutos) {
     context.commit('setTypeAutos', typeAutos);
   },
   setFirm(context, firm) {
     context.commit('setFirm', firm);
+  },
+  setModelGroup(context, modelGroup) {
+    context.commit('setModelGroup', modelGroup);
   },
   setModel(context, model) {
     context.commit('setModel', model);

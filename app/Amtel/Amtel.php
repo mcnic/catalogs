@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use GuzzleHttp\Client;
 use App\Amtel\Firms;
+use App\Amtel\Models;
 use Log;
 
 class Amtel extends Model
@@ -56,8 +57,19 @@ class Amtel extends Model
         }
     }
 
+    static private function sanitaryze($str)
+    {
+        $str = str_replace(' ', '_', $str);
+        $str = str_replace(',', '-', $str);
+        $str = str_replace('[', '', $str);
+        $str = str_replace(']', '', $str);
+        $str = str_replace('(', '', $str);
+        $str = str_replace(')', '', $str);
+        return $str;
+    }
+
     /*
-    * fill all firms
+    * artisan command - fill all firms
     */
     static public function fillFirms()
     {
@@ -67,6 +79,8 @@ class Amtel extends Model
         ];
 
         $res = json_decode(Amtel::get('/v2/company', $params));
+        Log::info('fillFirms res =' . print_r($res, 1));
+
         foreach ($res->companies as $firmInfo) {
             $firm = Firms::firstOrNew(['title' => $firmInfo->company_name]);
 
@@ -84,13 +98,13 @@ class Amtel extends Model
     */
     static public function getFirm($title)
     {
-        $firm = Firms::where('title', mb_strtolower($title))
+        /*$firm = Firms::where('title', mb_strtolower($title))
             ->first();
 
         if ($firm === null) {
-            echo "renew all\n";
+            Log::info('renew firm');
             self::fillFirms();
-        }
+        }*/
 
         return Firms::where('title', mb_strtolower($title))
             ->firstOrFail();
@@ -132,7 +146,7 @@ class Amtel extends Model
         //echo "\n" . $key . "\n";
 
         if (self::hasCache($key)) {
-            //echo "\nhas\n";
+            Log::info('GET from cache: ' . $key);
             return self::getCache($key);
         } else {
             $client = new Client;
@@ -150,7 +164,7 @@ class Amtel extends Model
                 //echo "\nadd new\n";
                 //echo "\n" . self::getCache($key) . "\n";
 
-                Log::info('amtel GET ' . self::URI . $method . ', params=' . json_encode($params) . '. result 200');
+                Log::info('GET: ' . self::URI . $method . ', params=' . json_encode($params) . '. result 200');
 
                 return $content;
             } else {
@@ -158,5 +172,111 @@ class Amtel extends Model
                 throw new \Symfony\Component\HttpKernel\Exception\HttpException('bad request ' . $res->getStatusCode());
             }
         }
+    }
+
+    /*
+    * artisan command - fill all models
+    */
+    static public function fillModels()
+    {
+        $params = [
+            'vehicle_model_types' => [0, 1, 2],
+            'avail_only' => false
+        ];
+
+        $firms = Firms::all();
+        //$firms = Firms::take(6)->get(); // audi & bmw
+        foreach ($firms as $firm) {
+            $models = Models::where('firm', $firm->id)->get();
+            if (count($models)) {
+                //echo "skip '" . $firm->title . "'\n";
+                continue;
+            }
+
+            echo "take '" . $firm->title . "'\n";
+
+            $params = [
+                'company_id' => $firm->id,
+                'model_types' => [0, 1, 2],
+                'avail_only' => false
+            ];
+
+            try {
+                $models = json_decode(Amtel::get('/company/models', $params));
+            } catch (\Exception $e) {
+                echo "error load '" . $firm->title . "':" . $e->getMessage();
+                continue;
+            }
+
+            foreach ($models->model_list as $el) {
+                $model = Models::firstOrNew(['id' => $el->model_id]);
+                $id = $el->model_id;
+                $model->id = $el->model_id;
+                $model->firm = $firm->id;
+                $model->title = mb_strtolower(str_replace('/', '-', $el->model_name));
+                $model->start = $el->model_year_start == null ? '' : $el->model_year_start;
+                $model->end = $el->model_year_end == null ? '' : $el->model_year_end;
+                $model->url = mb_strtolower(self::sanitaryze($model->title . '_' . $model->start . '-' . $model->end));
+                $model->group = mb_strtolower(explode('_', explode(' ', explode('/', explode('(', $el->model_name)[0])[0])[0])[0]);
+
+                try {
+                    $model->img = $models->model_image_list->$id[0]->url;
+                } catch (\Exception $e) {
+                }
+
+                $model->save();
+            }
+
+            //echo "sleep\n";
+            sleep(1);
+        }
+    }
+
+    static public function getModelGroups($firm)
+    {
+        $modelGroups = Models::where('firm', Amtel::getFirm($firm)->id)
+            ->orderBy('group', 'asc')
+            ->orderBy('title', 'desc')
+            ->get();
+
+        $groups = [];
+        $oldGroup = '';
+        foreach ($modelGroups as $model) {
+            if ($model->group != $oldGroup) {
+                $groups[] = [
+                    'title' => $model->group,
+                    'img' => $model->img
+                ];
+                $oldGroup = $model->group;
+            }
+        }
+
+        //Log::info('groups=' . print_r($groups, 1));
+        return $groups;
+    }
+
+    static public function getModels($firm, $groupModels)
+    {
+        $firmId = Amtel::getFirm($firm)->id;
+        $modelGroups = Models::where('firm', $firmId)
+            ->where('group', $groupModels)
+            ->orderBy('title', 'desc')
+            ->get();
+
+        $groups = [];
+        foreach ($modelGroups as $model) {
+            $groups[] = [
+                'id' => $model->id,
+                'firm' => $firmId,
+                'title' => $model->title,
+                'url' => $model->url,
+                'start' => $model->start,
+                'end' => $model->end,
+                'image' => $model->img_local != '' ? $model->img_local : $model->img,
+            ];
+        }
+
+        //Log::info('groups=' . print_r($groups, 1));
+        return $groups;
     }
 }

@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-breadcrumbs :items="bread" divider=">"></v-breadcrumbs>
+    <v-breadcrumbs :items="breadCrumbs" divider=">"></v-breadcrumbs>
 
     <v-row>
       <v-col cols="6">
@@ -38,8 +38,6 @@ export default {
     AutoInfo: () => import("./AutoInfo")
   },
   data: () => ({
-    title: "B-MAX 1",
-    auto: "",
     search: "",
     items: [
       {
@@ -89,40 +87,64 @@ export default {
     ]
   }),
   computed: {
-    bread(state) {
+    title($) {
+      return this.$store.getters.model;
+    },
+    breadCrumbs($) {
+      const pathArray = this.$route.path.split("/");
+      console.log("comp breadCrumbs");
+      //console.log(pathArray);
+
       return [
         {
-          text: "Каталоги",
+          text: "Главная",
           disabled: false,
           href: "/"
         },
         {
           text: process.env.MIX_AMTEL_NAME,
           disabled: false,
-          href: this.$route.path.split("/", 2).join("/")
+          href: "/" + pathArray[1]
         },
         {
-          text: "Ford",
+          text: this.$store.getters.firm,
           disabled: false,
-          href: this.$route.path.split("/", 4).join("/")
+          href: "/" + pathArray[1] + "/" + pathArray[2] + "/" + pathArray[3]
         },
         {
-          text: "B-MAX",
+          text: this.$store.getters.modelGroup,
           disabled: false,
-          href: this.$route.path.split("/", 5).join("/")
+          href:
+            "/" +
+            pathArray[1] +
+            "/" +
+            pathArray[2] +
+            "/" +
+            pathArray[3] +
+            "/" +
+            pathArray[4]
+        },
+        {
+          text: this.$store.getters.model,
+          disabled: false,
+          href: ""
         }
       ];
     }
   },
   mounted() {
-    this.$store.getters.debug ? console.log("Goods") : "";
+    if (this.$store.getters.debug) {
+      console.log("Goods");
+      //console.log(pathArray);
+    }
 
-    this.auto = this.$route.params.model;
-    this.bread.push({
-      text: this.title,
-      disabled: true,
-      href: "/" + process.env.MIX_AMTEL_PREFIX + "/cars/ford/b-max" + this.auto
-    });
+    const pathArray = this.$route.path.split("/");
+    this.$store.dispatch("setTypeAutos", pathArray[2]);
+    this.$store.dispatch("setFirm", pathArray[3]);
+    this.$store.dispatch("setModelGroup", pathArray[4]);
+    this.$store.dispatch("setModel", pathArray[5]);
+
+    //this.$store.dispatch("renewGoods");
   }
 };
 </script>

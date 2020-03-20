@@ -8,11 +8,11 @@
       </v-list-item-content>
     </v-list-item>
 
-    <div v-if="models == ''">Предложения отсутствуют</div>
+    <div v-if="modelGroups == ''">Предложения отсутствуют</div>
 
     <AutoInfo
       v-else
-      v-for="model in models"
+      v-for="model in modelGroups"
       :key="model.id"
       :id="model.id"
       :name="model.name"
@@ -52,24 +52,20 @@ export default {
         {
           text: this.$store.getters.firm,
           disabled: false,
-          href: "/" + pathArray[1] + "/" + pathArray[2] + "/" + pathArray[3]
-        },
-        {
-          text: this.$store.getters.modelGroup,
-          disabled: false,
           href: ""
         }
+        /*{
+          text: this.$store.getters.model,
+          disabled: false,
+          href: pathArray[1]
+        }*/
       ];
     },
-    models($) {
-      const list = this.$store.getters.models;
+    modelGroups($) {
+      const list = this.$store.getters.modelGroups;
       if (this.$store.getters.debug) {
-        console.log("computed models");
+        console.log("computed modelGroups");
         console.log(list);
-      }
-
-      if (list.models.length == 0) {
-        return;
       }
 
       const urlBase =
@@ -79,61 +75,38 @@ export default {
         this.$store.getters.typeAutos.toLowerCase() +
         "/" +
         this.$store.getters.firm.toLowerCase() +
-        "/" +
-        this.$store.getters.modelGroup.toLowerCase() +
         "/";
 
       let models = [];
       let data = "";
-      let goods_sh_avail = 0;
-      if (list.avail.result == true) {
-        list.models.forEach(el => {
-          let goods_sh_avail = list.avail.model_list.find(function(
-            item,
-            index,
-            array
-          ) {
-            if (item.model_id == el.id) {
-              return true;
-            }
-          });
-
-          if (goods_sh_avail != undefined) {
-            if (el.start == null) {
-              data = "<" + el.end;
-            } else {
-              if (el.end == null) {
-                data = el.start + ">";
-              } else {
-                data = el.start + "-" + el.end;
-              }
-            }
-
-            models.push({
-              id: el.id,
-              name: el.title + " " + data,
-              image: el.image,
-              text: "б/у з/ч: " + goods_sh_avail.goods_sh_avail,
-              url: urlBase + el.url
-            });
-          }
-        });
-        return models.length == 0 ? "" : models;
+      if (list.length == 0) {
+        return;
       }
+      list.forEach(el => {
+        models.push({
+          id: el.title,
+          name: el.title,
+          image: el.img,
+          text: "",
+          url:
+            urlBase +
+            //el.model_name.replace(/\//g, "-")
+            el.title
+        });
+      });
+      return models.length == 0 ? "" : models;
     }
   },
   mounted() {
-    if (this.$store.getters.debug) {
-      console.log("List models");
-      console.log(pathArray);
-    }
+    this.$store.getters.debug ? console.log("List modelGroups") : "";
+    console.log(pathArray);
 
     const pathArray = this.$route.path.split("/");
     this.$store.dispatch("setTypeAutos", pathArray[2]);
     this.$store.dispatch("setFirm", pathArray[3]);
-    this.$store.dispatch("setModelGroup", pathArray[4]);
+    //this.$store.dispatch("setModel", pathArray[3]);
 
-    this.$store.dispatch("renewModels");
+    this.$store.dispatch("renewModelGroups");
   }
 };
 </script>

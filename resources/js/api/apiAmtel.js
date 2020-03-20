@@ -14,24 +14,13 @@ const listTrucks = []
 const firms = {}
 
 export default {
-  /*  getFirms(cb) {
-      setTimeout(() => cb({
-        lightCars: listLightCars.map(item => ({
-          title: item.title,
-          url: prefix + "/cars/" + item.id
-        })),
-        trucks: listTrucks.map(item => ({
-          title: item.title,
-          url: prefix + "/truck/" + item.id
-        }))
-      }), timeout)
-    },*/
   getFirms(cb) {
-    debug ? console.log('api getFirms') : '';
-
     axios.get('/firm')
       .then(response => {
-        console.log(response.data);
+        if (debug) {
+          console.log('api getFirms');
+          console.log(response.data);
+        }
 
         cb(response.data);
         //this.fillFromData(response.data);
@@ -68,15 +57,13 @@ export default {
       , timeout)
   },
 
-  getModels(firm, typeAutos, cb) {
-    if (debug) {
-      console.log('api getModels');
-      console.log(firm);
-    }
-
-    axios.get('/' + typeAutos + '/' + firm)
+  getModelGroups(firm, typeAutos, cb) {
+    axios.get('/models/' + firm)
       .then(response => {
-        console.log(response.data);
+        if (debug) {
+          console.log('api getModelGroups');
+          console.log(response.data);
+        }
 
         cb(response.data);
         //this.fillFromData(response.data);
@@ -84,7 +71,30 @@ export default {
       .catch(error => {
         console.log("error " + error.response);
       })
+  },
 
+  getModels(typeAutos, firm, modelGroup, cb) {
+    axios.get('/' + typeAutos + '/' + firm + '/' + modelGroup)
+      .then(response => {
+        if (debug) {
+          console.log('api getModels');
+          //console.log(modelGroup);
+          console.log(response.data);
+        }
+
+        cb(response.data);
+        //this.fillFromData(response.data);
+      })
+      .catch(error => {
+        if (debug) {
+          console.log(error);
+        }
+        cb({
+          models: [],
+          avail: [],
+          error: error
+        });
+      })
   },
 
   buyProducts(products, cb, errorCb) {
