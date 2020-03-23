@@ -25,4 +25,6 @@ Route::group(['middleware' => 'myapi'], function () {
     Route::get('/firm', 'AtmtelController@getFirm');
     Route::get('/models/{firm}', 'AtmtelController@getModelGroups');
     Route::get('/{typeAutos}/{firm}/{modelGroup}', 'AtmtelController@getModels');
+    Route::get('/model/{modelUrl}', 'AtmtelController@getModel');
+    Route::get('/goods/{modelId}', 'AtmtelController@getGoods');
 });

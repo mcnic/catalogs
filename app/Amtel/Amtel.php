@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use App\Amtel\Firms;
 use App\Amtel\Models;
 use Log;
+use \Symfony\Component\HttpKernel\Exception\HttpException;
 
 class Amtel extends Model
 {
@@ -78,7 +79,7 @@ class Amtel extends Model
             'avail_only' => false
         ];
 
-        $res = json_decode(Amtel::get('/v2/company', $params));
+        $res = json_decode(self::get('/v2/company', $params));
         Log::info('fillFirms res =' . print_r($res, 1));
 
         foreach ($res->companies as $firmInfo) {
@@ -155,21 +156,19 @@ class Amtel extends Model
                 'user_id' => getenv('AMTEL_USER_ID'),
                 'request' => self::request($params)
             ]];
+            Log::info('GET: ' . self::URI . $method . ', params=' . json_encode($params));
             $res = $client->get(self::URI . $method, $signedParams);
 
             if ($res->getStatusCode() == 200) {
+                Log::info('result 200, add to cache: ' . $key);
                 $content = $res->getBody()->getContents();
-
                 self::putCache($key, $content);
-                //echo "\nadd new\n";
-                //echo "\n" . self::getCache($key) . "\n";
-
-                Log::info('GET: ' . self::URI . $method . ', params=' . json_encode($params) . '. result 200');
 
                 return $content;
             } else {
-                Log::error(new \Exception('amtel GET ' . self::URI . $method . ', params=' . json_encode($params) . '. result ' . $res->getStatusCode()));
-                throw new \Symfony\Component\HttpKernel\Exception\HttpException('bad request ' . $res->getStatusCode());
+                Log::error('GET: ' . self::URI . $method . ', params=' . json_encode($params) . '. result: ' . $res->getStatusCode());
+                //Log::error(new \Exception('amtel GET ' . self::URI . $method . ', params=' . json_encode($params) . '. result ' . $res->getStatusCode()));
+                throw new HttpException('bad request ' . $res->getStatusCode());
             }
         }
     }
@@ -202,7 +201,7 @@ class Amtel extends Model
             ];
 
             try {
-                $models = json_decode(Amtel::get('/company/models', $params));
+                $models = json_decode(self::get('/company/models', $params));
             } catch (\Exception $e) {
                 echo "error load '" . $firm->title . "':" . $e->getMessage();
                 continue;
@@ -234,7 +233,7 @@ class Amtel extends Model
 
     static public function getModelGroups($firm)
     {
-        $modelGroups = Models::where('firm', Amtel::getFirm($firm)->id)
+        $modelGroups = Models::where('firm', self::getFirm($firm)->id)
             ->orderBy('group', 'asc')
             ->orderBy('title', 'desc')
             ->get();
@@ -257,10 +256,10 @@ class Amtel extends Model
 
     static public function getModels($firm, $groupModels)
     {
-        $firmId = Amtel::getFirm($firm)->id;
+        $firmId = self::getFirm($firm)->id;
         $modelGroups = Models::where('firm', $firmId)
             ->where('group', $groupModels)
-            ->orderBy('title', 'desc')
+            ->orderBy('title', 'asc')
             ->get();
 
         $groups = [];
@@ -278,5 +277,30 @@ class Amtel extends Model
 
         //Log::info('groups=' . print_r($groups, 1));
         return $groups;
+    }
+
+    static public function getModelByUrl($modelUrl)
+    {
+        //Log::info('getModelByUrl=' . $modelUrl . ", decode=" . urldecode($modelUrl) . ", encode=" . urlencode($modelUrl));
+        return Models::where('url', $modelUrl)
+            ->firstOrFail();
+    }
+
+    static public function getGoods($modelId)
+    {
+        $params = [
+            'model_id' => $modelId,
+            'avail_only' => true
+        ];
+
+        try {
+            $res = json_decode(self::get('/goods/names', $params), true);
+            Log::info('getGoods=' . print_r($res, 1));
+
+            return $res;
+        } catch (\Exception $e) {
+            Log::error('amtel getGoods error: ' . $e->getMessage());
+            throw new HttpException(404, 'Model with id None not found');
+        }
     }
 }

@@ -3,25 +3,6 @@ import Api from '../../api/apiAmtel'
 
 const debug = process.env.MIX_NODE_ENV !== 'production'
 
-let breadCrumbsArray = [
-  {
-    name: "Главная"
-  },
-  {
-    name: process.env.MIX_AMTEL_NAME,
-  },
-  null,
-  {
-    name: "{firm}"
-  },
-  {
-    name: "{model}"
-  },
-  {
-    name: "{auto}"
-  },
-]
-
 const state = {
   debug: debug,
   typeAutos: '', // cars/trucks
@@ -34,8 +15,10 @@ const state = {
     }
   }, //for ListModels component
   model: '',
+  modelId: '',
   modelGroups: [],
   modelGroup: '',
+  goods: []
 }
 
 const getters = {
@@ -44,15 +27,10 @@ const getters = {
   },
   lightCars: (state, getters) => {
     return state.firms.lightCars
-    //return getters.firms.lightCars
   },
   trucks: (state, getters) => {
     return state.firms.trucks
-    //return getters.firms.trucks
   },
-  //titleFirm: state => firm => {
-  //   return firm
-  //},
   breadCrumbs: state => {
     return state.breadCrumbs
   },
@@ -73,6 +51,12 @@ const getters = {
   },
   model: state => {
     return state.model
+  },
+  modelId: state => {
+    return state.modelId
+  },
+  goods: state => {
+    return state.goods
   }
 
 }
@@ -82,15 +66,12 @@ const mutations = {
     state.count++
   },
   fillFirms(state, firms) {
-    state.debug ? console.log('mut fillFirms') : ''
     state.firms = firms
   },
   fillModelGroups(state, modelGroups) {
-    state.debug ? console.log('mut fillModelGroups') : ''
     state.modelGroups = modelGroups
   },
   fillModels(state, models) {
-    state.debug ? console.log('mut fillModels') : ''
     state.models = models
   },
   setBreadCrumbs(state, arr) {
@@ -105,9 +86,14 @@ const mutations = {
   setModelGroup(state, modelGroup) {
     state.modelGroup = modelGroup;
   },
-  setModel(state, model) {
-    state.model = model;
-  }
+  setModel(state, payload) {
+    state.model = payload.title;
+    state.modelId = payload.id;
+  },
+  fillGoods(state, goods) {
+    state.goods = goods
+  },
+
 }
 
 const actions = {
@@ -154,8 +140,32 @@ const actions = {
   setModelGroup(context, modelGroup) {
     context.commit('setModelGroup', modelGroup);
   },
-  setModel(context, model) {
-    context.commit('setModel', model);
+  setModel(context, modelUrl) {
+    Api.getModel(modelUrl, (model) => {
+      context.state.debug ? console.log('act setModel') : '';
+      if (model) {
+        context.commit('setModel', { title: model.title, id: model.id });
+
+        Api.getGoods(context.state.modelId, (goods) => {
+          if (goods) {
+            context.state.debug ? console.log('act fillGoods') : '';
+            context.commit('fillGoods', goods);
+          }
+        })
+      }
+      //context.state.debug ? console.log('act setModel after: ' + context.state.modelId) : ''
+    })
+  },
+  fillGoods(context) {
+    context.state.debug ? console.log('act fillGoods_' + context.state.modelId) : ''
+    Api.getGoods(context.state.modelId, (goods) => {
+      if (goods) {
+        console.log('act fillGoods');
+        console.log(goods);
+        context.commit('fillGoods', goods);
+      }
+    })
+
   }
 
 }

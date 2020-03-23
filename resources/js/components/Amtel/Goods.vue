@@ -12,11 +12,20 @@
           clear-icon="mdi-close-circle-outline"
         ></v-text-field>
 
-        <v-treeview hoverable open-on-click :items="items" :search="search">
-          <template slot="label" slot-scope="props">
+        <v-treeview
+          hoverable
+          rounded
+          openOnClick
+          activatable
+          dense
+          :items="listGoods"
+          :search="search"
+          @update:active="onInput"
+        >
+          <!--template slot="label" slot-scope="props">
             <router-link :to="props.item.to" v-if="props.item.to">{{ props.item.name }}</router-link>
             <span v-else>{{ props.item.name }}</span>
-          </template>
+          </template-->
         </v-treeview>
       </v-col>
 
@@ -38,54 +47,13 @@ export default {
     AutoInfo: () => import("./AutoInfo")
   },
   data: () => ({
-    search: "",
-    items: [
-      {
-        id: 1,
-        name: "Applications :",
-        children: [
-          { id: 2, name: "Calendar : app", to: "/url" },
-          { id: 3, name: "Chrome : app", to: "/url" },
-          { id: 4, name: "Webstorm : app", to: "/url" }
-        ]
-      },
-      {
-        id: 5,
-        name: "Documents :",
-        children: [
-          {
-            id: 6,
-            name: "vuetify :",
-            children: [
-              {
-                id: 7,
-                name: "src :",
-                children: [
-                  { id: 8, name: "index : ts" },
-                  { id: 9, name: "bootstrap : ts" }
-                ]
-              }
-            ]
-          },
-          {
-            id: 10,
-            name: "material2 :",
-            children: [
-              {
-                id: 11,
-                name: "src :",
-                children: [
-                  { id: 12, name: "v-btn : ts" },
-                  { id: 13, name: "v-card : ts" },
-                  { id: 14, name: "v-window : ts" }
-                ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
+    search: ""
   }),
+  methods: {
+    onInput(arr) {
+      console.log(arr[0]);
+    }
+  },
   computed: {
     title($) {
       return this.$store.getters.model;
@@ -130,6 +98,54 @@ export default {
           href: ""
         }
       ];
+    },
+    listGoods($) {
+      console.log("comp listGoods");
+      let list = this.$store.getters.goods;
+      console.log(list);
+
+      if (!list.goods_name_list || list.goods_name_list.length == 0) {
+        return;
+      }
+
+      let groups = {};
+      list.goods_name_list.forEach(el => {
+        //console.log(el);
+        if (groups[el.group_name] == undefined) {
+          groups[el.group_name] = {
+            id: el.group_id,
+            name: el.group_name,
+            avail: 0,
+            children: []
+          };
+        }
+        if (el.goods_sh_avail > 0) {
+          groups[el.group_name].children.push({
+            id: el.goods_name_id,
+            name: el.goods_name_short_ru + " - " + el.goods_sh_avail
+            //to: "/url"
+          });
+          groups[el.group_name].avail += el.goods_sh_avail;
+        }
+      });
+
+      console.log("groups:");
+      console.log(groups);
+
+      let goods = [];
+      for (var el in groups) {
+        if (groups[el].children.length > 0) {
+          goods.push({
+            id: groups[el].id,
+            name: groups[el].name + " - " + groups[el].avail,
+            children: groups[el].children
+          });
+        }
+      }
+
+      console.log("goods:");
+      console.log(goods);
+      return goods;
     }
   },
   mounted() {
@@ -143,8 +159,7 @@ export default {
     this.$store.dispatch("setFirm", pathArray[3]);
     this.$store.dispatch("setModelGroup", pathArray[4]);
     this.$store.dispatch("setModel", pathArray[5]);
-
-    //this.$store.dispatch("renewGoods");
+    //this.$store.dispatch("fillGoods");
   }
 };
 </script>

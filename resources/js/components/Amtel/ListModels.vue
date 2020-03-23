@@ -34,8 +34,8 @@ export default {
       return this.$store.getters.firm;
     },
     breadCrumbs($) {
+      this.$store.getters.debug ? console.log("comp breadCrumbs") : "";
       const pathArray = this.$route.path.split("/");
-      console.log("comp breadCrumbs");
       //console.log(pathArray);
 
       return [
@@ -112,7 +112,7 @@ export default {
             models.push({
               id: el.id,
               name: el.title + " " + data,
-              image: el.image,
+              image: el.image == "" ? "/images/noauto.png" : el.image,
               text: "б/у з/ч: " + goods_sh_avail.goods_sh_avail,
               url: urlBase + el.url
             });

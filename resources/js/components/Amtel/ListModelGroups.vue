@@ -34,8 +34,8 @@ export default {
       return this.$store.getters.firm;
     },
     breadCrumbs($) {
+      this.$store.getters.debug ? console.log("comp breadCrumbs") : "";
       const pathArray = this.$route.path.split("/");
-      console.log("comp breadCrumbs");
       //console.log(pathArray);
 
       return [
@@ -86,7 +86,7 @@ export default {
         models.push({
           id: el.title,
           name: el.title,
-          image: el.img,
+          image: el.img == "" ? "/images/noauto.png" : el.img,
           text: "",
           url:
             urlBase +
@@ -98,8 +98,10 @@ export default {
     }
   },
   mounted() {
-    this.$store.getters.debug ? console.log("List modelGroups") : "";
-    console.log(pathArray);
+    if (this.$store.getters.debug) {
+      console.log("List modelGroups");
+      console.log(pathArray);
+    }
 
     const pathArray = this.$route.path.split("/");
     this.$store.dispatch("setTypeAutos", pathArray[2]);

@@ -46,7 +46,6 @@ export default {
       cb(autos)
       , timeout)*/
   },
-
   getFirm(cb, id) {
     debug ? console.log('api getFirm') : '';
 
@@ -56,7 +55,6 @@ export default {
       cb(firm)
       , timeout)
   },
-
   getModelGroups(firm, typeAutos, cb) {
     axios.get('/models/' + firm)
       .then(response => {
@@ -72,7 +70,21 @@ export default {
         console.log("error " + error.response);
       })
   },
+  getModel(modelUrl, cb) {
+    axios.get('/model/' + modelUrl)
+      .then(response => {
+        if (debug) {
+          console.log('api getModel');
+          console.log(response.data);
+        }
 
+        cb(response.data);
+        //this.fillFromData(response.data);
+      })
+      .catch(error => {
+        console.log("error " + error.response);
+      })
+  },
   getModels(typeAutos, firm, modelGroup, cb) {
     axios.get('/' + typeAutos + '/' + firm + '/' + modelGroup)
       .then(response => {
@@ -86,9 +98,7 @@ export default {
         //this.fillFromData(response.data);
       })
       .catch(error => {
-        if (debug) {
-          console.log(error);
-        }
+        console.log(error);
         cb({
           models: [],
           avail: [],
@@ -96,7 +106,26 @@ export default {
         });
       })
   },
+  getGoods(modelId, cb) {
+    console.log("api getGoods_" + modelId);
+    if (!modelId) {
+      return [];
+    }
 
+    axios.get('/goods/' + modelId)
+      .then(response => {
+        if (debug) {
+          console.log('api getGoods');
+          console.log(response.data);
+        }
+
+        cb(response.data);
+        //this.fillFromData(response.data);
+      })
+      .catch(error => {
+        console.log("error " + error.response);
+      })
+  },
   buyProducts(products, cb, errorCb) {
     setTimeout(() => {
       // simulate random checkout failure.

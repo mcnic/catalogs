@@ -129,13 +129,13 @@ class AtmtelController extends Controller
         ];
     }
 
-    /*public function getModelsCars($model, $modelGroup)
+    public function getModel($modelUrl)
     {
-        return $this->getModels($model, $modelGroup, 0);
+        return Amtel::getModelByUrl($modelUrl);
     }
 
-    public function getModelsTruck($model, $modelGroup)
+    public function getGoods($modelId)
     {
-        return $this->getModels($model, $modelGroup, 1);
-    }*/
+        return Amtel::getGoods($modelId);
+    }
 }
