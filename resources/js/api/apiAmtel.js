@@ -56,7 +56,7 @@ export default {
       , timeout)
   },
   getModelGroups(firm, typeAutos, cb) {
-    axios.get('/models/' + firm)
+    axios.get('/modelGroups/' + firm)
       .then(response => {
         if (debug) {
           console.log('api getModelGroups');
@@ -86,7 +86,7 @@ export default {
       })
   },
   getModels(typeAutos, firm, modelGroup, cb) {
-    axios.get('/' + typeAutos + '/' + firm + '/' + modelGroup)
+    axios.get('/models/' + typeAutos + '/' + firm + '/' + modelGroup)
       .then(response => {
         if (debug) {
           console.log('api getModels');
@@ -106,13 +106,33 @@ export default {
         });
       })
   },
-  getGoods(modelId, cb) {
-    console.log("api getGoods_" + modelId);
+  getGoodsList(modelId, cb) {
+    debug ? console.log("api getGoodsList_" + modelId) : "";
     if (!modelId) {
       return [];
     }
 
-    axios.get('/goods/' + modelId)
+    axios.get('/goodsList/' + modelId)
+      .then(response => {
+        if (debug) {
+          console.log('api getGoodsList');
+          console.log(response.data);
+        }
+
+        cb(response.data);
+        //this.fillFromData(response.data);
+      })
+      .catch(error => {
+        console.log("error " + error.response);
+      })
+  },
+  getGoods(modelId, goodId, cb) {
+    debug ? console.log("api getGoods_" + modelId + '_' + goodId) : "";
+    if (!modelId | !goodId) {
+      return {};
+    }
+
+    axios.get('/goods/' + modelId + '/' + goodId)
       .then(response => {
         if (debug) {
           console.log('api getGoods');

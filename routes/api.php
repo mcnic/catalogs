@@ -17,14 +17,17 @@ use App\Http\Controllers\AtmtelController;
 */
 
 //Route::middleware(['auth:api'])->group(function () {
-Route::group(['middleware' => 'myapi'], function () {
+//Route::group(['middleware' => 'myapi'], function () {
+Route::group(['middleware' => getenv('AMTEL_API_MIDDLEWARE', 'myapi')], function () {
     /*Route::get('/user', function (Request $request) {
         return $request->user();
     });*/
 
     Route::get('/firm', 'AtmtelController@getFirm');
-    Route::get('/models/{firm}', 'AtmtelController@getModelGroups');
-    Route::get('/{typeAutos}/{firm}/{modelGroup}', 'AtmtelController@getModels');
+    Route::get('/modelGroups/{firm}', 'AtmtelController@getModelGroups');
+    Route::get('/models/{typeAutos}/{firm}/{modelGroup}', 'AtmtelController@getModels');
     Route::get('/model/{modelUrl}', 'AtmtelController@getModel');
-    Route::get('/goods/{modelId}', 'AtmtelController@getGoods');
+    Route::get('/goodsList/{modelId}', 'AtmtelController@getGoodsList');
+    Route::get('/goodsAll/{modelId}/{goodId}', 'AtmtelController@getGoodsAll'); //выдача полной инфы от поставщика, как есть. потом закрыть метод
+    Route::get('/goods/{modelId}/{goodId}', 'AtmtelController@getGoods');
 });

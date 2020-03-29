@@ -18,7 +18,8 @@ const state = {
   modelId: '',
   modelGroups: [],
   modelGroup: '',
-  goods: []
+  goodsList: [],
+  goods: {}
 }
 
 const getters = {
@@ -55,6 +56,9 @@ const getters = {
   modelId: state => {
     return state.modelId
   },
+  goodsList: state => {
+    return state.goodsList
+  },
   goods: state => {
     return state.goods
   }
@@ -89,6 +93,9 @@ const mutations = {
   setModel(state, payload) {
     state.model = payload.title;
     state.modelId = payload.id;
+  },
+  fillGoodsList(state, goodsList) {
+    state.goodsList = goodsList
   },
   fillGoods(state, goods) {
     state.goods = goods
@@ -146,27 +153,38 @@ const actions = {
       if (model) {
         context.commit('setModel', { title: model.title, id: model.id });
 
-        Api.getGoods(context.state.modelId, (goods) => {
-          if (goods) {
-            context.state.debug ? console.log('act fillGoods') : '';
-            context.commit('fillGoods', goods);
+        Api.getGoodsList(context.state.modelId, (goodsList) => {
+          if (goodsList) {
+            context.state.debug ? console.log('act setModel-getGoodsList') : '';
+            context.commit('fillGoodsList', goodsList);
           }
         })
       }
       //context.state.debug ? console.log('act setModel after: ' + context.state.modelId) : ''
     })
   },
-  fillGoods(context) {
-    context.state.debug ? console.log('act fillGoods_' + context.state.modelId) : ''
-    Api.getGoods(context.state.modelId, (goods) => {
-      if (goods) {
+  /*fillGoodsList(context) {
+    context.state.debug ? console.log('act fillGoodsList_' + context.state.modelId) : ''
+    Api.getGoodsList(context.state.modelId, (goods) => {
+      if (context.state.debug & goods) {
         console.log('act fillGoods');
         console.log(goods);
         context.commit('fillGoods', goods);
       }
     })
 
-  }
+  }*/
+  getGoods(context, goodId) {
+    context.state.debug ? console.log('act getGoods') : ''
+
+    if (goodId == undefined) {
+      context.commit('fillGoods', [])
+    } else {
+      Api.getGoods(context.state.modelId, goodId, (goods) => {
+        context.commit('fillGoods', goods)
+      })
+    }
+  },
 
 }
 

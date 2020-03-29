@@ -134,8 +134,18 @@ class AtmtelController extends Controller
         return Amtel::getModelByUrl($modelUrl);
     }
 
-    public function getGoods($modelId)
+    public function getGoodsList($modelId)
     {
-        return Amtel::getGoods($modelId);
+        return Amtel::getGoodsList($modelId);
+    }
+
+    public function getGoodsAll($modelId, $goodId)
+    {
+        return Amtel::getGoodsAll($modelId, $goodId);
+    }
+
+    public function getGoods($modelId, $goodId)
+    {
+        return Amtel::getGoods($modelId, $goodId);
     }
 }

@@ -47,7 +47,15 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             'throttle:20,1',
             //'bindings',
+        ],
+
+        'myapi_nothrottle' => [
+            \Illuminate\Session\Middleware\StartSession::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
+            //'throttle:20,1',
+            //'bindings',
         ]
+
     ];
 
     /**

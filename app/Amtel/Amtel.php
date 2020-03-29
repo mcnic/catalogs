@@ -4,10 +4,10 @@ namespace App\Amtel;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use App\Amtel\Firms;
 use App\Amtel\Models;
-use Log;
 use \Symfony\Component\HttpKernel\Exception\HttpException;
 
 class Amtel extends Model
@@ -178,11 +178,6 @@ class Amtel extends Model
     */
     static public function fillModels()
     {
-        $params = [
-            'vehicle_model_types' => [0, 1, 2],
-            'avail_only' => false
-        ];
-
         $firms = Firms::all();
         //$firms = Firms::take(6)->get(); // audi & bmw
         foreach ($firms as $firm) {
@@ -203,6 +198,7 @@ class Amtel extends Model
             try {
                 $models = json_decode(self::get('/company/models', $params));
             } catch (\Exception $e) {
+                Log::error('amtel fillModels("' . $firm->title . '") error: ' . $e->getMessage());
                 echo "error load '" . $firm->title . "':" . $e->getMessage();
                 continue;
             }
@@ -286,7 +282,7 @@ class Amtel extends Model
             ->firstOrFail();
     }
 
-    static public function getGoods($modelId)
+    static public function getGoodsList($modelId)
     {
         $params = [
             'model_id' => $modelId,
@@ -295,12 +291,89 @@ class Amtel extends Model
 
         try {
             $res = json_decode(self::get('/goods/names', $params), true);
-            Log::info('getGoods=' . print_r($res, 1));
+            //Log::info('getGoodsList=' . print_r($res, 1));
 
             return $res;
         } catch (\Exception $e) {
-            Log::error('amtel getGoods error: ' . $e->getMessage());
+            Log::error('amtel getGoodsList error: ' . $e->getMessage());
             throw new HttpException(404, 'Model with id None not found');
+        }
+    }
+
+    /*
+        get all goods from supplier as is
+    */
+    static public function getGoodsAll($modelId, $goodId)
+    {
+        $params = [
+            'model_id' => $modelId,
+            'goods_name_id' => $goodId
+        ];
+
+        try {
+            $res = json_decode(self::get('/goods/by_model', $params), true);
+            //Log::info('getGoodsAll=' . print_r($res, 1));
+
+            return $res;
+        } catch (\Exception $e) {
+            Log::error('amtel getGoodsAll error: ' . $e->getMessage());
+            throw new HttpException(404, 'Model with id None not found');
+        }
+    }
+
+    /*
+        get goods for frontend
+
+     * @param (string) modelId = id models
+     * @param (string) goodId = id goods
+     * @param (float) priceMul = multiplexer for client price price
+    */
+    static public function getGoods($modelId, $goodId, $priceMul = 1)
+    {
+        $params = [
+            'model_id' => $modelId,
+            'goods_name_id' => $goodId
+        ];
+
+        try {
+            $res = json_decode(self::get('/goods/by_model', $params), true);
+            Log::info('getGoods=' . print_r($res, 1));
+            $goods = [];
+
+            if ($res['result'] = true) {
+                Log::info('goods_list=' . print_r($res['goods_list'], 1));
+                foreach ($res['avail_sh'] as $avail) {
+                    $goodsInfo = $res['goods_list'][$avail['goods_id']] ?? [
+                        'company_id' => '',
+                        'company_name' => '',
+                        'num' => ''
+                    ];
+                    $goodsNameList = $res['goods_name_list'][$avail['goods_name_id']] ?? [
+                        'goods_name_long_ru' => 'деталь',
+                        'goods_name_short_ru' => 'деталь'
+                    ];
+                    $goods[$avail['goods_internal_id']] = [
+                        'id' => $avail['goods_internal_id'],
+                        'goods_id' => $goodId,
+                        'model_id' => $modelId,
+                        'company_id' => $goodsInfo['company_id'],
+                        'company_name' => $goodsInfo['company_name'],
+                        'num' => $goodsInfo['num'],
+                        'comment' => $avail['comment'],
+                        'avail' => $avail['count_avail'],
+                        'wearout' => $avail['wearout'],
+                        'price' => $avail['price_reseller'] * $priceMul,
+                        'name_long' => $goodsNameList['goods_name_long_ru'],
+                        'name_short' => $goodsNameList['goods_name_short_ru'],
+                        'img' => $res['image_sh_list'][$avail['goods_supplier_sh_id']] ?? []
+                    ];
+                }
+            }
+
+            return $goods;
+        } catch (\Exception $e) {
+            Log::error('amtel getGoods error: ' . $e->getMessage());
+            throw new HttpException(500, $e->getMessage());
         }
     }
 }

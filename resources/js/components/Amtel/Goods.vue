@@ -3,7 +3,7 @@
     <v-breadcrumbs :items="breadCrumbs" divider=">"></v-breadcrumbs>
 
     <v-row>
-      <v-col cols="6">
+      <v-col cols="4">
         <v-text-field
           v-model="search"
           placeholder="быстрый поиск по каталогу"
@@ -29,11 +29,26 @@
         </v-treeview>
       </v-col>
 
-      <v-col cols="6">
+      <v-col cols="8">
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title class="headline">Запчасти для {{ title }}</v-list-item-title>
-            <div>list Goods</div>
+            <div v-if="goods == ''">Предложения отсутствуют</div>
+            <v-container v-else class="grey lighten-5">
+              <GoodInfo
+                v-for="good in goods"
+                :key="good.id"
+                :id="good.id"
+                :comment="good.comment"
+                :name="good.name"
+                :company="good.company_name"
+                :num="good.num"
+                :avail="good.avail"
+                :price="good.price"
+                :wearout="good.wearout"
+                :img="good.img"
+              ></GoodInfo>
+            </v-container>
           </v-list-item-content>
         </v-list-item>
       </v-col>
@@ -44,23 +59,33 @@
 <script>
 export default {
   components: {
-    AutoInfo: () => import("./AutoInfo")
+    GoodInfo: () => import("./GoodInfo")
   },
   data: () => ({
-    search: ""
+    search: "",
+    goodsId: undefined,
+    shipping_company: {}
   }),
   methods: {
     onInput(arr) {
-      console.log(arr[0]);
+      //this.goods = arr[0];
+      this.goodsId = arr[0];
+      this.$store.dispatch("getGoods", this.goodsId);
     }
   },
   computed: {
     title($) {
       return this.$store.getters.model;
     },
+    goods($) {
+      this.$store.getters.debug ? console.log("comp goods") : "";
+      console.log(this.goodsId);
+
+      return this.$store.getters.goods;
+    },
     breadCrumbs($) {
+      this.$store.getters.debug ? console.log("comp breadCrumbs") : "";
       const pathArray = this.$route.path.split("/");
-      console.log("comp breadCrumbs");
       //console.log(pathArray);
 
       return [
@@ -100,9 +125,11 @@ export default {
       ];
     },
     listGoods($) {
-      console.log("comp listGoods");
-      let list = this.$store.getters.goods;
-      console.log(list);
+      let list = this.$store.getters.goodsList;
+      if (this.$store.getters.debug) {
+        console.log("comp listGoods");
+        console.log(list);
+      }
 
       if (!list.goods_name_list || list.goods_name_list.length == 0) {
         return;
@@ -129,8 +156,10 @@ export default {
         }
       });
 
-      console.log("groups:");
-      console.log(groups);
+      if (this.$store.getters.debug) {
+        console.log("groups:");
+        console.log(groups);
+      }
 
       let goods = [];
       for (var el in groups) {
@@ -143,8 +172,11 @@ export default {
         }
       }
 
-      console.log("goods:");
-      console.log(goods);
+      if (this.$store.getters.debug) {
+        console.log("goods:");
+        console.log(goods);
+      }
+
       return goods;
     }
   },
