@@ -90,7 +90,7 @@ export default {
 
       return [
         {
-          text: "Главная",
+          text: "Каталоги",
           disabled: false,
           href: "/"
         },
@@ -149,7 +149,7 @@ export default {
         if (el.goods_sh_avail > 0) {
           groups[el.group_name].children.push({
             id: el.goods_name_id,
-            name: el.goods_name_short_ru + " - " + el.goods_sh_avail
+            name: el.goods_name_short_ru // + " - " + el.goods_sh_avail
             //to: "/url"
           });
           groups[el.group_name].avail += el.goods_sh_avail;
@@ -164,10 +164,13 @@ export default {
       let goods = [];
       for (var el in groups) {
         if (groups[el].children.length > 0) {
+          let childrens = groups[el].children.sort(function(a, b) {
+            return a.name.localeCompare(b.name);
+          });
           goods.push({
             id: groups[el].id,
-            name: groups[el].name + " - " + groups[el].avail,
-            children: groups[el].children
+            name: groups[el].name, // + " - " + groups[el].avail,
+            children: childrens
           });
         }
       }
@@ -195,3 +198,15 @@ export default {
   }
 };
 </script>
+
+<!--
+
+.v-treeview-node.v-treeview-node--rounded .v-treeview-node__root {
+    /* margin-top: 8px; */
+    /* margin-bottom: 8px; */
+}
+
+.v-treeview--dense .v-treeview-node__root {
+    min-height: 20px;
+}
+-->

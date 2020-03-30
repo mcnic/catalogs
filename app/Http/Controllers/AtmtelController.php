@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Amtel\Amtel;
-use App\Amtel\Models;
-use Log;
+//use App\Amtel\Models;
+use Illuminate\Support\Facades\Log;
 
 class AtmtelController extends Controller
 {

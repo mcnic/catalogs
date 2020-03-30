@@ -16,7 +16,7 @@ export default {
     firm: "",
     bread: [
       {
-        text: "Главная",
+        text: "Каталоги",
         disabled: false,
         href: "/"
       },

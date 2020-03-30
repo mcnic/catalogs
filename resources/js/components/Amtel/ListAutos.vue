@@ -62,7 +62,7 @@ export default {
 
       return [
         {
-          text: "Главная",
+          text: "Каталоги",
           disabled: false,
           href: "/"
         },

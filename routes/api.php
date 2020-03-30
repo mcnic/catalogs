@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AutoimportController;
 use App\Http\Controllers\AtmtelController;
 
 /*
@@ -22,6 +22,8 @@ Route::group(['middleware' => getenv('AMTEL_API_MIDDLEWARE', 'myapi')], function
     /*Route::get('/user', function (Request $request) {
         return $request->user();
     });*/
+
+    //Route::get('/huIsUser', 'AutoimportController@getUser');
 
     Route::get('/firm', 'AtmtelController@getFirm');
     Route::get('/modelGroups/{firm}', 'AtmtelController@getModelGroups');

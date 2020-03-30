@@ -7,7 +7,7 @@ import routerAmtel from './routerAmtel'
 let routes = [
     {
         path: "/",
-        name: "Главная",
+        name: "Каталоги",
         component: () => import('$comp/Home.vue'),
     },
     //{ path: '/e', component: Example },

@@ -2,12 +2,19 @@
   <v-app>
     <!-- top navigation bar -->
     <v-app-bar app color="indigo" dark>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>Каталоги</v-toolbar-title>
+      <!--v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon-->
+      <v-toolbar-title>
+        Каталоги
+        <a
+          :href="mainSitePath"
+          style="color: white"
+          title="вернутся на основной сайт"
+        >autoimport31.ru</a>
+      </v-toolbar-title>
 
       <v-spacer></v-spacer>
 
-      <v-btn icon>
+      <!--v-btn icon>
         <v-icon>mdi-magnify</v-icon>
       </v-btn>
 
@@ -27,7 +34,7 @@
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item>
         </v-list>
-      </v-menu>
+      </v-menu-->
     </v-app-bar>
 
     <!-- left drawer -->
@@ -89,6 +96,7 @@ export default {
   data: () => ({
     appName: process.env.MIX_AMTEL_NAME,
     mainSiteName: process.env.MIX_LICENSE,
+    mainSitePath: process.env.MIX_MAIN_URL,
     drawer: false,
     items: [
       { title: "Click Me" },

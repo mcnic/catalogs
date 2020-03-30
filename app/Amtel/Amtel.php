@@ -348,10 +348,16 @@ class Amtel extends Model
                         'company_name' => '',
                         'num' => ''
                     ];
+
+                    if ($goodsInfo['company_name'] == '' || $goodsInfo['num'] == '') {
+                        continue;
+                    }
+
                     $goodsNameList = $res['goods_name_list'][$avail['goods_name_id']] ?? [
                         'goods_name_long_ru' => 'деталь',
                         'goods_name_short_ru' => 'деталь'
                     ];
+
                     $goods[$avail['goods_internal_id']] = [
                         'id' => $avail['goods_internal_id'],
                         'goods_id' => $goodId,
