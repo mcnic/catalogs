@@ -25,7 +25,7 @@
     },
     "config": {
         "platform": {
-            "php": ">=7.2.1"
+            "php": "7.2"
         },
         "optimize-autoloader": true,
         "preferred-install": "dist",
