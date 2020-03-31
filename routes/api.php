@@ -32,4 +32,5 @@ Route::group(['middleware' => getenv('AMTEL_API_MIDDLEWARE', 'myapi')], function
     Route::get('/goodsList/{modelId}', 'AtmtelController@getGoodsList');
     Route::get('/goodsAll/{modelId}/{goodId}', 'AtmtelController@getGoodsAll'); //выдача полной инфы от поставщика, как есть. потом закрыть метод
     Route::get('/goods/{modelId}/{goodId}', 'AtmtelController@getGoods');
+    Route::get('/goodsByNum/{num}', 'AtmtelController@getGoodsByNum');
 });

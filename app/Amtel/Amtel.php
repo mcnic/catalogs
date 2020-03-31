@@ -382,4 +382,28 @@ class Amtel extends Model
             throw new HttpException(500, $e->getMessage());
         }
     }
+
+    /*
+        get all goods by num(article)
+    */
+    static public function getGoodsByNum($num)
+    {
+        $params = [
+            'num' => $num,
+            'use_cross_references' => true, // Возвращать ли аналоги товара в результате поиска
+            'use_search_form' => true, // Использовать поисковую форму номера (без спецсимволов)
+            //'company_id' => // int Идентификатор компании-производителя товара
+            //'goods_name_id_list' => // int[] Список наименований товаров
+        ];
+
+        try {
+            $res = json_decode(self::get('/goods/avail_by_num', $params), true);
+            Log::info('getGoodsByNum=' . print_r($res, 1));
+
+            return $res;
+        } catch (\Exception $e) {
+            Log::error('amtel getGoodsByNum error: ' . $e->getMessage());
+            throw new HttpException(500, $e->getMessage());
+        }
+    }
 }

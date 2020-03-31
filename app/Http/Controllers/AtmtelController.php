@@ -148,4 +148,9 @@ class AtmtelController extends Controller
     {
         return Amtel::getGoods($modelId, $goodId);
     }
+
+    public function getGoodsByNum($num)
+    {
+        return Amtel::getGoodsByNum($num);
+    }
 }
