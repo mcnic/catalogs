@@ -36,7 +36,6 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-polyfill": "^6.26",
     "deepmerge": "^4.2.2",
-    "fibers": "^4.0.2",
     "material-design-icons-iconfont": "^5.0.1",
     "vue": "^2.6.11",
     "vue-axios": "^2.1.5",
