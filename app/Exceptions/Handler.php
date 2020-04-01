@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Exception;
+use ErrorException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -49,8 +50,6 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        //Log::info('exception=' . $exception);
-
         if ($exception instanceof HttpException) {
             $statusCode = $exception->getStatusCode();
             return response()->json([
@@ -67,7 +66,15 @@ class Handler extends ExceptionHandler
             ], $statusCode);
         }
 
+        if ($exception instanceof ErrorException) {
+            $statusCode = 500;
+            return response()->json([
+                'error' => 'internal error',
+                'code' => $statusCode
+            ], $statusCode);
+        }
 
+        Log::info('exception=' . $exception);
         return parent::render($request, $exception);
     }
 }

@@ -291,11 +291,11 @@ class Amtel extends Model
 
         try {
             $res = json_decode(self::get('/goods/names', $params), true);
-            //Log::info('getGoodsList=' . print_r($res, 1));
+            Log::info('getGoodsList=' . print_r($res, 1));
 
             return $res;
         } catch (\Exception $e) {
-            Log::error('amtel getGoodsList error: ' . $e->getMessage());
+            Log::error($e);
             throw new HttpException(404, 'Model with id None not found');
         }
     }
@@ -312,11 +312,11 @@ class Amtel extends Model
 
         try {
             $res = json_decode(self::get('/goods/by_model', $params), true);
-            //Log::info('getGoodsAll=' . print_r($res, 1));
+            Log::info('getGoodsAll=' . print_r($res, 1));
 
             return $res;
         } catch (\Exception $e) {
-            Log::error('amtel getGoodsAll error: ' . $e->getMessage());
+            Log::error($e);
             throw new HttpException(404, 'Model with id None not found');
         }
     }
@@ -330,63 +330,69 @@ class Amtel extends Model
     */
     static public function getGoods($modelId, $goodId, $priceMul = 1)
     {
-        $params = [
-            'model_id' => $modelId,
-            'goods_name_id' => $goodId
-        ];
-
         try {
-            $res = json_decode(self::get('/goods/by_model', $params), true);
-            Log::info('getGoods=' . print_r($res, 1));
-            $goods = [];
+            $res = self::getGoodsAll($modelId, $goodId);
 
-            if ($res['result'] = true) {
-                Log::info('goods_list=' . print_r($res['goods_list'], 1));
-                foreach ($res['avail_sh'] as $avail) {
-                    $goodsInfo = $res['goods_list'][$avail['goods_id']] ?? [
-                        'company_id' => '',
-                        'company_name' => '',
-                        'num' => ''
-                    ];
-
-                    if ($goodsInfo['company_name'] == '' || $goodsInfo['num'] == '') {
-                        continue;
-                    }
-
-                    $goodsNameList = $res['goods_name_list'][$avail['goods_name_id']] ?? [
-                        'goods_name_long_ru' => 'деталь',
-                        'goods_name_short_ru' => 'деталь'
-                    ];
-
-                    $goods[$avail['goods_internal_id']] = [
-                        'id' => $avail['goods_internal_id'],
-                        'goods_id' => $goodId,
-                        'model_id' => $modelId,
-                        'company_id' => $goodsInfo['company_id'],
-                        'company_name' => $goodsInfo['company_name'],
-                        'num' => $goodsInfo['num'],
-                        'comment' => $avail['comment'],
-                        'avail' => $avail['count_avail'],
-                        'wearout' => $avail['wearout'],
-                        'price' => $avail['price_reseller'] * $priceMul,
-                        'name_long' => $goodsNameList['goods_name_long_ru'],
-                        'name_short' => $goodsNameList['goods_name_short_ru'],
-                        'img' => $res['image_sh_list'][$avail['goods_supplier_sh_id']] ?? []
-                    ];
-                }
-            }
-
-            return $goods;
+            return self::explodeGoods($res, $priceMul);
         } catch (\Exception $e) {
-            Log::error('amtel getGoods error: ' . $e->getMessage());
+            Log::error($e);
             throw new HttpException(500, $e->getMessage());
         }
     }
 
     /*
+        get goods for frontend as linear array
+
+     * @param (array) list - list goods
+     * @param (float) priceMul = multiplexer for client price price
+    */
+    static private function explodeGoods($list, $priceMul = 1)
+    {
+        Log::info('explodeGoods goods=' . print_r($list, 1));
+
+        $goods = [];
+        if ($res['result'] = true) {
+            foreach ($list['avail_sh'] as $avail) {
+                $goodsInfo = $list['goods_list'][$avail['goods_id']] ?? [
+                    'company_id' => '',
+                    'company_name' => '',
+                    'num' => ''
+                ];
+
+                if ($goodsInfo['company_name'] == '' || $goodsInfo['num'] == '') {
+                    continue;
+                }
+
+                $goodsNameList = $list['goods_name_list'][$avail['goods_name_id']] ?? [
+                    'goods_name_long_ru' => 'деталь',
+                    'goods_name_short_ru' => 'деталь'
+                ];
+
+                $goods[$avail['goods_internal_id']] = [
+                    'id' => $avail['goods_internal_id'],
+                    'goods_id' => $goodsInfo['goods_id'],
+                    //'model_id' => $modelId,
+                    'company_id' => $goodsInfo['company_id'],
+                    'company_name' => $goodsInfo['company_name'],
+                    'num' => $goodsInfo['num'],
+                    'comment' => $avail['comment'],
+                    'avail' => $avail['count_avail'],
+                    'wearout' => $avail['wearout'],
+                    'price' => $avail['price_reseller'] * $priceMul,
+                    'name_long' => $goodsNameList['goods_name_long_ru'],
+                    'name_short' => $goodsNameList['goods_name_short_ru'],
+                    'img' => $list['image_sh_list'][$avail['goods_supplier_sh_id']] ?? []
+                ];
+            }
+        }
+
+        return $goods;
+    }
+
+    /*
         get all goods by num(article)
     */
-    static public function getGoodsByNum($num)
+    static public function getGoodsByNum($num, $priceMul = 1)
     {
         $params = [
             'num' => $num,
@@ -400,9 +406,9 @@ class Amtel extends Model
             $res = json_decode(self::get('/goods/avail_by_num', $params), true);
             Log::info('getGoodsByNum=' . print_r($res, 1));
 
-            return $res;
+            return self::explodeGoods($res, $priceMul);
         } catch (\Exception $e) {
-            Log::error('amtel getGoodsByNum error: ' . $e->getMessage());
+            Log::error($e);
             throw new HttpException(500, $e->getMessage());
         }
     }
