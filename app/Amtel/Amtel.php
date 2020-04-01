@@ -21,7 +21,7 @@ class Amtel extends Model
      * @param (string) params = array of params
      * @return (string) request
      */
-    static public function request($params)
+    static public function getRequestString($params)
     {
         // Create token header as a JSON string
         $header = json_encode(['alg' => 'HS256', 'typ' => 'JWT']);
@@ -154,7 +154,7 @@ class Amtel extends Model
             $signedParams = ['form_params' => [
                 'id' => 1,
                 'user_id' => getenv('AMTEL_USER_ID'),
-                'request' => self::request($params)
+                'request' => self::getRequestString($params)
             ]];
             Log::info('GET: ' . self::URI . $method . ', params=' . json_encode($params));
             $res = $client->get(self::URI . $method, $signedParams);
@@ -381,6 +381,7 @@ class Amtel extends Model
                     'price' => $avail['price_reseller'] * $priceMul,
                     'name_long' => $goodsNameList['goods_name_long_ru'],
                     'name_short' => $goodsNameList['goods_name_short_ru'],
+                    'supplier' => $list['supplier_point_list'][$avail['supplier_point_id']] ?? [],
                     'img' => $list['image_sh_list'][$avail['goods_supplier_sh_id']] ?? []
                 ];
             }
