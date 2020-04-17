@@ -153,4 +153,14 @@ class AtmtelController extends Controller
     {
         return Amtel::getGoodsByNum($num);
     }
+
+    public function getBasket()
+    {
+        return Amtel::getBasket();
+    }
+
+    public function add2Basket($goods_id, $goods_supplier_sh_id, $supplier_point_id, $count)
+    {
+        return Amtel::add2Basket($goods_id, $goods_supplier_sh_id, $supplier_point_id, $count);
+    }
 }

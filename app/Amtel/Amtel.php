@@ -174,6 +174,35 @@ class Amtel extends Model
     }
 
     /*
+    * run POST method
+    * @param (string) method, e.g. '/v2/company'
+    * @param params = array of params
+    * @return 
+    */
+    static public function post($method, $params)
+    {
+        $client = new Client;
+        $signedParams = ['form_params' => [
+            'id' => 1,
+            'user_id' => getenv('AMTEL_USER_ID'),
+            'request' => self::getRequestString($params)
+        ]];
+        Log::info('POST: ' . self::URI . $method . ', params=' . json_encode($params));
+        $res = $client->post(self::URI . $method, $signedParams);
+
+        if ($res->getStatusCode() == 200) {
+            Log::info('result 200');
+            $content = $res->getBody()->getContents();
+
+            return $content;
+        } else {
+            Log::error('GET: ' . self::URI . $method . ', params=' . json_encode($params) . '. result: ' . $res->getStatusCode());
+            //Log::error(new \Exception('amtel GET ' . self::URI . $method . ', params=' . json_encode($params) . '. result ' . $res->getStatusCode()));
+            throw new HttpException('bad request ' . $res->getStatusCode());
+        }
+    }
+
+    /*
     * artisan command - fill all models
     */
     static public function fillModels()
@@ -373,6 +402,8 @@ class Amtel extends Model
                     'goods_id' => $goodsInfo['goods_id'],
                     //'model_id' => $modelId,
                     'company_id' => $goodsInfo['company_id'],
+                    'goods_supplier_sh_id' => $avail['goods_supplier_sh_id'],
+                    'supplier_point_id' => $avail['supplier_point_id'],
                     'company_name' => $goodsInfo['company_name'],
                     'num' => $goodsInfo['num'],
                     'comment' => $avail['comment'],
@@ -408,6 +439,57 @@ class Amtel extends Model
             Log::info('getGoodsByNum=' . print_r($res, 1));
 
             return self::explodeGoods($res, $priceMul);
+        } catch (\Exception $e) {
+            Log::error($e);
+            throw new HttpException(500, $e->getMessage());
+        }
+    }
+
+    /*
+        get all baskets and goods in baskets
+    */
+    static public function getBasket()
+    {
+        $params = [
+            //'session_id ' => // int Уникальный идентификатор сессии клиента, может использоваться, если клиент еще не авторизован и user_data_id неизвестен
+            'user_data_id ' => getenv('AMTEL_USER_DATA_ID'), // (int) – Идентификатор клиента для которого делается заказ (отличается от user_id для доступа к API, выдается вместе с остальными учетными данными при подключении)
+            'all' => true, // Получить корзины всех клиентов
+            //'basket_num_list' => [int], // Список идентификаторов корзин
+        ];
+
+        try {
+            $res = json_decode(self::get('/basket', $params), true);
+            Log::info('basket=' . print_r($res, 1));
+
+            return $res;
+        } catch (\Exception $e) {
+            Log::error($e);
+            throw new HttpException(500, $e->getMessage());
+        }
+    }
+
+    /*
+        create basket and add goods in basket
+    */
+    static public function add2Basket($goods_id, $goods_supplier_sh_id, $supplier_point_id, $count)
+    {
+        $params = [
+            'user_data_id' => getenv('AMTEL_USER_DATA_ID'), // (int) * – Идентификатор клиента для которого делается заказ (отличается от user_id для доступа к API, выдается вместе с остальными учетными данными при подключении)
+            //'basket_num' => 41919, //(int) * – Номер корзины, указанный реселлером, у клиента может быть несколько корзин с разными числовыми идентификаторами уникальными для данного клиента
+            'goods_id' =>  $goods_id, // (int) * – Идентификатор нового товара (необязателен, если указан goods_supplier_sh_id).
+            'goods_supplier_sh_id' => $goods_supplier_sh_id, //(int) * – Идентификатор б/у товара (обязателен только для б/у товаров).
+            'supplier_point_id' => $supplier_point_id, // (int) * – Идентификатор точки выдачи поставщика.
+            'count' => $count, // (int) * – Количество единиц товара.
+            //'price' => $price, // (float) – Стоимость единицы товара, может быть большей, например для отображения реселлером своему клиенту. Если не указано, то будет отображаться стоимость для реселлера (price_reseller).
+            //shipping_company_id – Идентификатор транспортной компании.
+            //payment_method_id – Идентификатор способа оплаты.
+        ];
+
+        try {
+            $res = json_decode(self::post('/basket', $params), true);
+            Log::info('basket=' . print_r($res, 1));
+
+            return $res;
         } catch (\Exception $e) {
             Log::error($e);
             throw new HttpException(500, $e->getMessage());

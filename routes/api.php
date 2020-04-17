@@ -16,6 +16,12 @@ use App\Http\Controllers\AtmtelController;
 |
 */
 
+// for 1c:
+Route::group(['middleware' => 'api'], function () {
+    Route::get('/basket', 'AtmtelController@getBasket');
+    Route::post('/basketAdd/{goods_id}/{goods_supplier_sh_id}/{supplier_point_id}/{count}', 'AtmtelController@add2Basket');
+});
+
 //Route::middleware(['auth:api'])->group(function () {
 //Route::group(['middleware' => 'myapi'], function () {
 Route::group(['middleware' => getenv('AMTEL_API_MIDDLEWARE', 'myapi')], function () {
