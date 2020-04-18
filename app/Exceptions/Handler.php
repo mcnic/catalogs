@@ -7,6 +7,7 @@ use ErrorException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Illuminate\Session\TokenMismatchException;
 use Log;
 
 class Handler extends ExceptionHandler
@@ -70,6 +71,14 @@ class Handler extends ExceptionHandler
             $statusCode = 500;
             return response()->json([
                 'error' => 'internal error',
+                'code' => $statusCode
+            ], $statusCode);
+        }
+
+        if ($exception instanceof TokenMismatchException) {
+            $statusCode = 419;
+            return response()->json([
+                'error' => 'token mismatch exception',
                 'code' => $statusCode
             ], $statusCode);
         }

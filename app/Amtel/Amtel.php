@@ -8,12 +8,24 @@ use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use App\Amtel\Firms;
 use App\Amtel\Models;
+use GuzzleHttp\Psr7\Request;
 use \Symfony\Component\HttpKernel\Exception\HttpException;
+use function GuzzleHttp\json_encode;
+
+/*
+    работает только с 1 корзиной - getenv('AMTEL_BASKET_NUM', 1)
+    получаем товары и отправляем в заказ только из нее
+*/
 
 class Amtel extends Model
 {
 
     private const URI = 'https://ecore-reseller.euroauto.ru';
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
     /**
      * get request string with signature
@@ -136,17 +148,17 @@ class Amtel extends Model
 
     /*
     * run GET method
-    * @param (string) method, e.g. '/v2/company'
-    * @param params = array of params
-    * @return 
+    * @param String $method, e.g. '/v2/company'
+    * @param Array params = array of params
+    * @param Bool cache - enable cache result and get from cache saved data
     */
-    static public function get($method, $params)
+    static public function get($method, $params, $cache = true)
     {
         $key = $method . ':' . json_encode($params);
         $key = str_replace('"', '\'', $key);
         //echo "\n" . $key . "\n";
 
-        if (self::hasCache($key)) {
+        if ($cache && self::hasCache($key)) {
             Log::info('GET from cache: ' . $key);
             return self::getCache($key);
         } else {
@@ -160,9 +172,13 @@ class Amtel extends Model
             $res = $client->get(self::URI . $method, $signedParams);
 
             if ($res->getStatusCode() == 200) {
-                Log::info('result 200, add to cache: ' . $key);
                 $content = $res->getBody()->getContents();
-                self::putCache($key, $content);
+                if ($cache) {
+                    Log::info('result 200, add to cache: ' . $key);
+                    self::putCache($key, $content);
+                } else {
+                    Log::info('result 200');
+                }
 
                 return $content;
             } else {
@@ -189,6 +205,35 @@ class Amtel extends Model
         ]];
         Log::info('POST: ' . self::URI . $method . ', params=' . json_encode($params));
         $res = $client->post(self::URI . $method, $signedParams);
+
+        if ($res->getStatusCode() == 200) {
+            Log::info('result 200');
+            $content = $res->getBody()->getContents();
+
+            return $content;
+        } else {
+            Log::error('GET: ' . self::URI . $method . ', params=' . json_encode($params) . '. result: ' . $res->getStatusCode());
+            //Log::error(new \Exception('amtel GET ' . self::URI . $method . ', params=' . json_encode($params) . '. result ' . $res->getStatusCode()));
+            throw new HttpException('bad request ' . $res->getStatusCode());
+        }
+    }
+
+    /*
+    * run DELETE method
+    * @param (string) method, e.g. '/v2/company'
+    * @param params = array of params
+    * @return 
+    */
+    static public function del($method, $params)
+    {
+        $client = new Client;
+        $signedParams = ['form_params' => [
+            'id' => 1,
+            'user_id' => getenv('AMTEL_USER_ID'),
+            'request' => self::getRequestString($params)
+        ]];
+        Log::info('DELETE: ' . self::URI . $method . ', params=' . json_encode($params));
+        $res = $client->delete(self::URI . $method, $signedParams);
 
         if ($res->getStatusCode() == 200) {
             Log::info('result 200');
@@ -452,14 +497,14 @@ class Amtel extends Model
     {
         $params = [
             //'session_id ' => // int Уникальный идентификатор сессии клиента, может использоваться, если клиент еще не авторизован и user_data_id неизвестен
-            'user_data_id ' => getenv('AMTEL_USER_DATA_ID'), // (int) – Идентификатор клиента для которого делается заказ (отличается от user_id для доступа к API, выдается вместе с остальными учетными данными при подключении)
-            'all' => true, // Получить корзины всех клиентов
-            //'basket_num_list' => [int], // Список идентификаторов корзин
+            'user_data_id ' => (int) getenv('AMTEL_USER_DATA_ID'), // (int) – Идентификатор клиента для которого делается заказ (отличается от user_id для доступа к API, выдается вместе с остальными учетными данными при подключении)
+            //'all' => true, // Получить корзины всех клиентов
+            'basket_num_list' => [(int) getenv('AMTEL_BASKET_NUM', 1)] //[int] Список идентификаторов корзин
         ];
 
         try {
-            $res = json_decode(self::get('/basket', $params), true);
-            Log::info('basket=' . print_r($res, 1));
+            $res = json_decode(self::get('/basket', $params, false), true);
+            Log::info('get basket=' . print_r($res, 1));
 
             return $res;
         } catch (\Exception $e) {
@@ -474,8 +519,8 @@ class Amtel extends Model
     static public function add2Basket($goods_id, $goods_supplier_sh_id, $supplier_point_id, $count)
     {
         $params = [
-            'user_data_id' => getenv('AMTEL_USER_DATA_ID'), // (int) * – Идентификатор клиента для которого делается заказ (отличается от user_id для доступа к API, выдается вместе с остальными учетными данными при подключении)
-            //'basket_num' => 41919, //(int) * – Номер корзины, указанный реселлером, у клиента может быть несколько корзин с разными числовыми идентификаторами уникальными для данного клиента
+            'user_data_id' => (int) getenv('AMTEL_USER_DATA_ID'), // (int) * – Идентификатор клиента для которого делается заказ (отличается от user_id для доступа к API, выдается вместе с остальными учетными данными при подключении)
+            'basket_num' => (int) getenv('AMTEL_BASKET_NUM', 1), //(int) * – Номер корзины, указанный реселлером, у клиента может быть несколько корзин с разными числовыми идентификаторами уникальными для данного клиента
             'goods_id' =>  $goods_id, // (int) * – Идентификатор нового товара (необязателен, если указан goods_supplier_sh_id).
             'goods_supplier_sh_id' => $goods_supplier_sh_id, //(int) * – Идентификатор б/у товара (обязателен только для б/у товаров).
             'supplier_point_id' => $supplier_point_id, // (int) * – Идентификатор точки выдачи поставщика.
@@ -487,7 +532,133 @@ class Amtel extends Model
 
         try {
             $res = json_decode(self::post('/basket', $params), true);
-            Log::info('basket=' . print_r($res, 1));
+            Log::info('add to basket=' . print_r($res, 1));
+
+            return $res;
+        } catch (\Exception $e) {
+            Log::error($e);
+            throw new HttpException(500, $e->getMessage());
+        }
+    }
+
+    /*
+        delete goods from basket
+    */
+    static public function delFromBasket($goods_list)
+    {
+        $params = [
+            'user_data_id' => (int) getenv('AMTEL_USER_DATA_ID'), // (int) * – Идентификатор клиента
+            //'basket_num' => getenv('AMTEL_BASKET_NUM', 1), //(int) * – Идентификатор корзины, указанный реселлером
+            'basket_goods_list' => json_decode($goods_list), // Список идентификаторов позиций корзины
+            //'session_id' =>  null
+        ];
+
+        try {
+            $res = json_decode(self::del('/basket', $params), true);
+            Log::info('del from basket=' . print_r($res, 1));
+
+            return $res;
+        } catch (\Exception $e) {
+            Log::error($e);
+            throw new HttpException(500, $e->getMessage());
+        }
+    }
+
+    /*
+        get all orders
+        @http_params: state_present, state_except, order_list, from_date, to_date, tags
+    */
+    static public function getOrder($request)
+    {
+        $params = [
+            'user_data_id' => (int) getenv('AMTEL_USER_DATA_ID'), // (int) * – Идентификатор клиента
+            'state_present' => $request->input('state_present'), // Только заказы находящиеся в статусах, если null, то возвращаются заказы во всех статусах.
+            'state_except' => $request->input('state_except'), // Только заказы не находящиеся в статусах, если null, то возвращаются заказы во всех статусах.
+            'order_header_id_list' =>  $request->input('order_list'), // Получение содержимого только для указанных заказов
+            'from_date' =>  $request->input('from_date'), // С даты, в формате yyyy-mm-dd hh:mm:ss.
+            'to_date' => $request->input('to_date'), // По дату, в формате yyyy-mm-dd hh:mm:ss.
+            'tags' => $request->input('tags'), //Массив тегов, по которым осуществить фильтрацию.
+            //filter_headers_by_list – Фильтровать список заказов по идентификаторам в order_header_id_list.
+        ];
+
+        try {
+            $res = json_decode(self::get('/order', $params, false), true);
+            Log::info('get order=' . print_r($res, 1));
+
+            return $res;
+        } catch (\Exception $e) {
+            Log::error($e);
+            throw new HttpException(500, $e->getMessage());
+        }
+    }
+
+    /*
+        add to order in basket by goods_id
+    */
+    static public function add2Order($goods_list)
+    {
+        $params = [
+            'user_data_id' => (int) getenv('AMTEL_USER_DATA_ID'), // (int) * – Идентификатор клиента для которого делается заказ (отличается от user_id для доступа к API, выдается вместе с остальными учетными данными при подключении)
+            'basket_num' => (int) getenv('AMTEL_BASKET_NUM', 1), // Номер корзины клиента, указанный реселлером при добавлении товара в корзину.
+            'delivery_city_id' => getenv('AMTEL_DELIVERY_CITY_ID', 1), // Идентификатор города доставки.
+            'delivery_address' => getenv('AMTEL_DELIVERY_ADDRESS', ''), // Адрес доставки.
+            'delivery_contact' => getenv('AMTEL_DELIVERY_CONTACT', ''), // Телефон получателя заказа.
+            'delivery_tel' => getenv('AMTEL_DELIVERY_TEL', ''), // Телефон получателя заказа.
+            'delivery_comment' => getenv('AMTEL_DELIVERY_COMMENT', ''), // Комментарий к заказу.
+            'allow_supplier_offer_sim' => getenv('AMTEL_ALLOW_REPLACE', false), // Разрешить поставщику предлагать замену.
+            'to_split' => false, // Разбивать заказ при наличии разных поставщиков товаров в корзине.
+            'basket_goods_list' => json_decode($goods_list), // Список basket_goods_id для заказа, остальные останутся в корзине, если не указан - закажутся все товары.
+            //'shipping_company_id => ' – Идентификатор транспортной компании.
+            //payment_method_id – Идентификатор способа оплаты.
+            //tags – Список тегов, по которым после создания заказа будет возможна фильтрация, задаются в виде массива строк, например: ["tag1", "tag2"]. Например можно указать номер заказа, идентификатор клиента в системе реселлера.
+            //order_list_url – Адрес на стороне реселлера, по которому доступен лист заказа (будет приложен поставщиком к заказу).
+        ];
+
+        try {
+            $res = json_decode(self::post('/order', $params), true);
+            Log::info('add to order=' . print_r($res, 1));
+
+            return $res;
+        } catch (\Exception $e) {
+            Log::error($e);
+            throw new HttpException(500, $e->getMessage());
+        }
+    }
+
+    /*
+        delete goods from order
+    */
+    static public function delFromOrder($goods_id)
+    {
+        $params = [
+            'user_data_id' => (int) getenv('AMTEL_USER_DATA_ID'), // (int) * – Идентификатор клиента
+            'order_goods_id' => (int) $goods_id, // Идентификатор товара в заказе
+        ];
+
+        try {
+            $res = json_decode(self::del('/order/goods', $params), true);
+            Log::info('del from order=' . print_r($res, 1));
+
+            return $res;
+        } catch (\Exception $e) {
+            Log::error($e);
+            throw new HttpException(500, $e->getMessage());
+        }
+    }
+
+    /*
+        add to order in basket by goods_id
+    */
+    static public function confirmOrder($goods_id)
+    {
+        $params = [
+            //'user_data_id' => (int) getenv('AMTEL_USER_DATA_ID'), // (int) * – Идентификатор клиента для которого делается заказ (отличается от user_id для доступа к API, выдается вместе с остальными учетными данными при подключении)
+            'order_goods_id' => (int) $goods_id, // Идентификатор товара в заказе
+        ];
+
+        try {
+            $res = json_decode(self::post('/order/goods_confirm', $params), true);
+            Log::info('add to order=' . print_r($res, 1));
 
             return $res;
         } catch (\Exception $e) {

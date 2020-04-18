@@ -6,9 +6,20 @@ use Illuminate\Http\Request;
 use App\Amtel\Amtel;
 //use App\Amtel\Models;
 use Illuminate\Support\Facades\Log;
+use \Symfony\Component\HttpKernel\Exception\HttpException;
 
 class AtmtelController extends Controller
 {
+
+    /*
+        chech allow true ip from list
+    */
+    private function isAllowIp()
+    {
+        $ipList = json_decode(getenv('ALLOW_IP'), '[127.0.0.1]');
+        $request = Request();
+        return in_array($request->ip(), $ipList);
+    }
 
     /**
      * get list firms
@@ -162,5 +173,30 @@ class AtmtelController extends Controller
     public function add2Basket($goods_id, $goods_supplier_sh_id, $supplier_point_id, $count)
     {
         return Amtel::add2Basket($goods_id, $goods_supplier_sh_id, $supplier_point_id, $count);
+    }
+
+    public function delFromBasket($goods_list)
+    {
+        return Amtel::delFromBasket($goods_list);
+    }
+
+    public function getOrder(Request $request)
+    {
+        return Amtel::getOrder($request);
+    }
+
+    public function add2Order($goods_list)
+    {
+        return Amtel::add2Order($goods_list);
+    }
+
+    public function delFromOrder($goods_id)
+    {
+        return Amtel::delFromOrder($goods_id);
+    }
+
+    public function confirmOrder($goods_id)
+    {
+        return Amtel::confirmOrder($goods_id);
     }
 }

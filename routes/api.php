@@ -17,14 +17,21 @@ use App\Http\Controllers\AtmtelController;
 */
 
 // for 1c:
-Route::group(['middleware' => 'api'], function () {
+Route::group(['middleware' => 'checkIp:api'], function () {
     Route::get('/basket', 'AtmtelController@getBasket');
     Route::post('/basketAdd/{goods_id}/{goods_supplier_sh_id}/{supplier_point_id}/{count}', 'AtmtelController@add2Basket');
+    // goods_list = goods_id's array, etc [46889,46915,46892,46936]
+    Route::delete('/basketDel/{goods_list}', 'AtmtelController@delFromBasket');
+
+    Route::get('/order', 'AtmtelController@getOrder');
+    Route::post('/orderAdd/{goods_list}', 'AtmtelController@add2Order');
+    Route::delete('/orderDel/{goods_id}', 'AtmtelController@delFromOrder');
+    Route::post('/orderConfirm/{goods_id}', 'AtmtelController@confirmOrder');
 });
 
 //Route::middleware(['auth:api'])->group(function () {
 //Route::group(['middleware' => 'myapi'], function () {
-Route::group(['middleware' => getenv('AMTEL_API_MIDDLEWARE', 'myapi')], function () {
+Route::group(['middleware' => getenv('AMTEL_API_MIDDLEWARE', 'checkIp:myapi')], function () {
     /*Route::get('/user', function (Request $request) {
         return $request->user();
     });*/
@@ -36,7 +43,8 @@ Route::group(['middleware' => getenv('AMTEL_API_MIDDLEWARE', 'myapi')], function
     Route::get('/models/{typeAutos}/{firm}/{modelGroup}', 'AtmtelController@getModels');
     Route::get('/model/{modelUrl}', 'AtmtelController@getModel');
     Route::get('/goodsList/{modelId}', 'AtmtelController@getGoodsList');
-    Route::get('/goodsAll/{modelId}/{goodId}', 'AtmtelController@getGoodsAll'); //выдача полной инфы от поставщика, как есть. потом закрыть метод
+    //выдача полной инфы от поставщика, как есть. потом закрыть метод
+    //Route::get('/goodsAll/{modelId}/{goodId}', 'AtmtelController@getGoodsAll'); 
     Route::get('/goods/{modelId}/{goodId}', 'AtmtelController@getGoods');
     Route::get('/goodsByNum/{num}', 'AtmtelController@getGoodsByNum');
 });
