@@ -586,6 +586,7 @@ class Amtel extends Model
             Log::info('get order=' . print_r($res, 1));
 
             return $res;
+            //return self::explodeOrders($res);
         } catch (\Exception $e) {
             Log::error($e);
             throw new HttpException(500, $e->getMessage());
@@ -665,5 +666,44 @@ class Amtel extends Model
             Log::error($e);
             throw new HttpException(500, $e->getMessage());
         }
+    }
+
+    /*
+        plain info from api '/order' result
+
+     * @param (object) orders
+    */
+    static private function explodeOrders($orders)
+    {
+        //Log::info('explodeOrders goods=' . print_r($orders, 1));
+
+        $goods = [];
+        if ($orders['result'] = true) {
+            foreach ($orders['order_goods_list'] as $avail) {
+                $avail = $avail[0];
+                Log::info('avail=' . print_r($avail, 1));
+
+                $goods[$avail['goods_internal_id']] = [
+                    'id' => $avail['goods_internal_id'],
+                    'goods_id' => $avail['goods_id'],
+                    'company_name' => $avail['company_name'],
+                    'count' => $avail['count'],
+                    'count_avail' => $avail['count_avail'],
+                    'expected_delivery_days' => $avail['expected_delivery_days'],
+                    'goods_name' => $avail['goods_name'],
+                    'goods_supplier_sh_id' => $avail['goods_supplier_sh_id'],
+                    'num' => $avail['num'],
+                    'price' => $avail['price'],
+                    'price_reseller' => $avail['price_reseller'],
+                    'state' => $avail['state'],
+                    'state_change_date' => $avail['state_change_date'],
+                    'supplier_point_id' => $avail['supplier_point_id'],
+                    'tags' => $avail['tags'],
+                    'user_comment' => $avail['user_comment'],
+                ];
+            }
+        }
+
+        return $goods;
     }
 }
