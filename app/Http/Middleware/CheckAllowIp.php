@@ -21,7 +21,7 @@ class CheckAllowIp
         $ipList = json_decode(getenv('ALLOW_IP'), '[127.0.0.1]');
         $request = Request();
         if (!in_array($request->ip(), $ipList)) {
-            throw new HttpException(401, 'wrong ip');
+            throw new HttpException(401, 'wrong ip ' . $request->ip());
         }
 
         return $next($request);
